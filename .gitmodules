@@ -1,0 +1,10 @@
+[submodule "Novar/vendor/spdlog"]
+	path = Novar/vendor/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "Novar/vendor/glm"]
+	path = Novar/vendor/glm
+	url = https://github.com/g-truc/glm
+
+[submodule "Novar/vendor/imgui"]
+	path = Novar/vendor/imgui
+	url = https://github.com/ocornut/imgui
