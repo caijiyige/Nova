@@ -12,8 +12,14 @@ namespace NV
         virtual unsigned int GetWidth() const = 0;
         virtual unsigned int GetHeight() const = 0;
 
+        virtual unsigned int GetRendererID() const = 0;
+
+        virtual void SetData(void* data,uint32_t size) = 0;
+
         virtual void Bind(unsigned int slot = 0) const = 0;
         virtual void UnBind() const = 0;
+
+        virtual bool operator==(const Texture& other) const = 0;
 
     };
 
@@ -21,7 +27,11 @@ namespace NV
     class  Texture2D :public Texture
     {
     public:
+
+        static std::shared_ptr<Texture2D> Create(const uint32_t width,const uint32_t height);
         static std::shared_ptr<Texture2D> Create(const std::string& path);
+
+
 
     };
     

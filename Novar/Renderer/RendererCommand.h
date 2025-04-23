@@ -25,10 +25,9 @@ namespace NV{
             {
                 s_RendererAPI->SetClearColor(color);
             }
-            inline static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+            inline static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,uint32_t indexCount = 0)
             {
-                s_RendererAPI->DrawIndexd(vertexArray);
-
+                s_RendererAPI->DrawIndexd(vertexArray,indexCount);
             }
         
         private:

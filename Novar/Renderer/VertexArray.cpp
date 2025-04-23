@@ -5,7 +5,7 @@
 #include "OpenGLVertexArray.h"
 namespace NV
 {
-    VertexArray *VertexArray::Create()
+    std::shared_ptr<VertexArray> VertexArray::Create()
     {
         switch (Renderer::GetAPI())
         {
@@ -14,7 +14,7 @@ namespace NV
                 return nullptr;
                 
             case RendererAPI::API::OpenGL:
-                return new OpenGLVertexArray();
+                return std::make_shared<OpenGLVertexArray>();
         }
         return nullptr;
     }

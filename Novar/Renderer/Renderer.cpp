@@ -25,14 +25,13 @@ namespace NV{
 
 
     }
-    void Renderer::Submit(const std::shared_ptr<VertexArray> &vertexArray,const std::shared_ptr<Shader>& shader,const glm::mat4& transform)
+   /*void Renderer::Submit(const std::shared_ptr<VertexArray> &vertexArray,const std::shared_ptr<Shader>& shader,const glm::mat4& transform)
     {
 
         shader->Bind();
         std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4f("u_ViewProjection",m_SceneData->ViewProjectionMatrix);
         std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4f("u_ModelMatrix",transform);
-
         vertexArray->Bind();
-       RendererCommand::DrawIndexed(vertexArray);
-    }
+        RendererCommand::DrawIndexed(vertexArray);
+    }*/ 
 }

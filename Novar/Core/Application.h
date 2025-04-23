@@ -16,7 +16,7 @@ namespace NV
     class NOVA_API Application
     {
     public:
-        Application();
+        Application(const std::string& name = "Nova Engine");
         virtual ~Application();
         void Run();
         void OnEvent(Event& e);
@@ -26,6 +26,8 @@ namespace NV
 
         inline static Application& Get() { return *s_Instance; }
         inline Window& GetWindow() { return *m_Window; }
+
+        void Close() { m_Running = false; }
 
     private:
         bool OnWindowClose(WindowCloseEvent& e);

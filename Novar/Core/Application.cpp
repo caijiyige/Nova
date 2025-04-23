@@ -5,6 +5,7 @@
 #include "Input.h"
 
 #include "Renderer.h"
+#include "Renderer2D.h"
 
 #include "Timestep.h"
 
@@ -14,16 +15,17 @@ namespace NV
 
   
 
-    Application::Application()
+    Application::Application(const std::string& name)
     
     {
         // Initialization code here
         NV_CORE_ASSERT(!s_Instance, "Application already exists!");
         s_Instance = this;
-        m_Window = std::unique_ptr<Window>(Window::Create());
+        m_Window = std::unique_ptr<Window>(Window::Create(name));
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
         Renderer::Init();
+        Renderer2D::Init();
 
         m_ImGuiLayer = new ImguiLayer();
         PushLayer(m_ImGuiLayer);   
@@ -79,11 +81,12 @@ namespace NV
     void Application::PushLayer(Layer *layer)
     {
         m_LayerStack.PushLayer(layer);
-        
+        layer->OnAttach();
     }
     void Application::PushOverlay(Layer *overlay)
     {
         m_LayerStack.PushOverlay(overlay);
+        overlay->OnAttach();
     }
     bool Application::OnWindowClose(WindowCloseEvent &e)
     {

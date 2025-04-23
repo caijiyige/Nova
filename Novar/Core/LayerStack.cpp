@@ -18,12 +18,12 @@ namespace NV
     {
         m_LayerInsert = m_Layers.emplace(m_LayerInsert, layer);
         m_LayerInsertIndex++;
-        layer->OnAttach();
+        
     }
     void LayerStack::PushOverlay(Layer* overlay)
     {
         m_Layers.emplace_back(overlay);
-        overlay->OnAttach();
+        
     }
 
     void LayerStack::PopLayer(Layer* layer)

@@ -36,6 +36,25 @@ namespace NV{
 		}
 	}
 
+    OpenGLTexture2D::OpenGLTexture2D(const uint32_t width, const uint32_t height)
+    :m_Width(width),m_Height(height)
+    {
+
+        GLenum internalFormat = GL_RGBA8;
+        GLenum dataFormat = GL_RGBA;
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_RedererID);
+
+        glTextureStorage2D(m_RedererID, 1 ,internalFormat,m_Width,m_Height);
+
+        glTextureParameteri(m_RedererID, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTextureParameteri(m_RedererID, GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+
+        glTextureParameteri(m_RedererID,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        glTextureParameteri(m_RedererID,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+    }
+
     OpenGLTexture2D::OpenGLTexture2D(const std::string &path)
     :m_path(path)
     {
@@ -58,15 +77,25 @@ namespace NV{
         glTextureParameteri(m_RedererID, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
         glTextureParameteri(m_RedererID, GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
+        glTextureParameteri(m_RedererID,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        glTextureParameteri(m_RedererID,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
         glTextureSubImage2D(m_RedererID, 0 ,0, 0 ,m_Width,m_Height,dataFormat,GL_UNSIGNED_BYTE,data);
 
         stbi_image_free(data);
 
     }
+
     OpenGLTexture2D::~OpenGLTexture2D()
     {
         glDeleteTextures(1,&m_RedererID);
 
+    }
+
+    void OpenGLTexture2D::SetData(void *data, uint32_t size)
+    {
+        NV_CORE_ASSERT(size == m_Width * m_Height *4 , "data must be entire texture");
+        glTextureSubImage2D(m_RedererID, 0 ,0, 0 ,m_Width,m_Height,GL_RGBA,GL_UNSIGNED_BYTE,data);
     }
 
     void OpenGLTexture2D::Bind(unsigned int slot) const

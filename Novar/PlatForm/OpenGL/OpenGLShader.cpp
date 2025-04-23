@@ -54,7 +54,11 @@ namespace NV
     {
         glUniform1i(glGetUniformLocation(m_RendererID, name.c_str()), value);
     }
-    void OpenGLShader::SetUniform2f(const std::string& name, const glm::vec2& vector)
+    void OpenGLShader::SetUniform1iv(const std::string &name, int *values,uint32_t count)
+    {
+        glUniform1iv(glGetUniformLocation(m_RendererID, name.c_str()), count, values);
+    }
+    void OpenGLShader::SetUniform2f(const std::string &name, const glm::vec2 &vector)
     {
         glUniform2f(glGetUniformLocation(m_RendererID, name.c_str()), vector.x, vector.y);
     }

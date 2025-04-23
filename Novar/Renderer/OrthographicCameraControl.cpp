@@ -44,6 +44,10 @@ namespace NV
         dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OrthographicCameraControl::OnWindowResized));
 
     }
+    void OrthographicCameraControl::CalculateView()
+    {
+        m_Camera.SetProjection(-m_aspectRatio * m_ZoomLevel,m_aspectRatio * m_ZoomLevel,-m_ZoomLevel,m_ZoomLevel);
+    }
     bool OrthographicCameraControl::OnMouseScrolled(MouseScrollEvent &e)
     {
         m_ZoomLevel -= e.GetYOffset();

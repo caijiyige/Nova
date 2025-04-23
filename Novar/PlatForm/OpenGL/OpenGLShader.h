@@ -15,13 +15,14 @@ namespace NV
 
         const std::string& GetName() const override{return m_Name;}
 
-        void SetUniform1f(const std::string& name, float value) ;
-        void SetUniform1i(const std::string& name, int value);
-        void SetUniform2f(const std::string& name, const glm::vec2& vector);
-        void SetUniform3f(const std::string& name, const glm::vec3& vector);
-        void SetUniform4f(const std::string& name, const glm::vec4& vector);
-        void SetUniformMat3f(const std::string& name, const glm::mat3& matrix);
-        void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
+        void SetUniform1f(const std::string& name, float value) override;
+        void SetUniform1i(const std::string& name, int value) override;
+        void SetUniform1iv(const std::string &name, int *values,uint32_t count)override;
+        void SetUniform2f(const std::string& name, const glm::vec2& vector) override;
+        void SetUniform3f(const std::string& name, const glm::vec3& vector) override;
+        void SetUniform4f(const std::string& name, const glm::vec4& vector) override;
+        void SetUniformMat3f(const std::string& name, const glm::mat3& matrix) override;
+        void SetUniformMat4f(const std::string& name, const glm::mat4& matrix) override;
 
     private:
         unsigned int m_RendererID;// OpenGL shader program ID

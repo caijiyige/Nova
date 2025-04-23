@@ -14,6 +14,15 @@ namespace NV
 
         virtual const std::string& GetName() const =0;
 
+        virtual void SetUniform1f(const std::string& name, float value) =0;
+        virtual void SetUniform1i(const std::string& name, int value)=0;
+        virtual void SetUniform1iv(const std::string &name, int *values,uint32_t count)=0;
+        virtual void SetUniform2f(const std::string& name, const glm::vec2& vector) =0;
+        virtual void SetUniform3f(const std::string& name, const glm::vec3& vector) =0;
+        virtual void SetUniform4f(const std::string& name, const glm::vec4& vector) =0;
+        virtual void SetUniformMat3f(const std::string& name, const glm::mat3& matrix) =0;
+        virtual void SetUniformMat4f(const std::string& name, const glm::mat4& matrix) =0;
+
         static std::shared_ptr<Shader> Create(const std::string& path);
          
         static std::shared_ptr<Shader> Create(const std::string& name,const std::string& vertexShader, const std::string& fragmentShader);
