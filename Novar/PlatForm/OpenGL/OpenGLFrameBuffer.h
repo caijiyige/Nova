@@ -13,13 +13,14 @@ namespace NV
             virtual ~OpenGLFrameBuffer();
             virtual void Bind() override;
             virtual void UnBind() override;
-            virtual void Resize() override;
+            virtual void Resize(float x,float y) override;
+            void Invalidate() ;
             virtual uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
             virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
         private:
-            uint32_t m_FrameBufferID;
-            uint32_t m_ColorAttachment;
-            uint32_t m_DepthAttachment;
+            uint32_t m_FrameBufferID = 0;
+            uint32_t m_ColorAttachment = 0;
+            uint32_t m_DepthAttachment = 0;
             FrameBufferSpecification m_Specification;
     };
 }

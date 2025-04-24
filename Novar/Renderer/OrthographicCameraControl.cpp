@@ -44,6 +44,12 @@ namespace NV
         dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OrthographicCameraControl::OnWindowResized));
 
     }
+    void OrthographicCameraControl::OnResize(float width, float height)
+    {
+        m_aspectRatio = (float)width/(float)height;
+        m_Camera.SetProjection(-m_aspectRatio * m_ZoomLevel,m_aspectRatio * m_ZoomLevel,-m_ZoomLevel,m_ZoomLevel);
+
+    }
     void OrthographicCameraControl::CalculateView()
     {
         m_Camera.SetProjection(-m_aspectRatio * m_ZoomLevel,m_aspectRatio * m_ZoomLevel,-m_ZoomLevel,m_ZoomLevel);
@@ -57,8 +63,7 @@ namespace NV
     }
     bool OrthographicCameraControl::OnWindowResized(WindowResizeEvent &e)
     {
-        m_aspectRatio = (float)e.GetWidth()/(float)e.GetHeight();
-        m_Camera.SetProjection(-m_aspectRatio * m_ZoomLevel,m_aspectRatio * m_ZoomLevel,-m_ZoomLevel,m_ZoomLevel);
+        OnResize(e.GetWidth(), e.GetHeight());
 
         return false;
     }

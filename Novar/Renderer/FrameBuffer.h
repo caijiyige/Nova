@@ -17,7 +17,7 @@ namespace NV
             virtual ~FrameBuffer() = default;
             virtual void Bind() = 0;
             virtual void UnBind() = 0;
-            virtual void Resize() = 0;
+            virtual void Resize(float x,float y) = 0;
             virtual uint32_t GetColorAttachmentRendererID() const = 0;
             virtual uint32_t GetDepthAttachmentRendererID() const = 0;
 

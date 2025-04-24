@@ -32,6 +32,7 @@ namespace NV
             glm::vec3 m_CameraPosition;
 
             glm::vec4 m_SqareColor = {0.1f, 0.2f, 0.8f, 0.5f};
+            glm::vec2 m_ViewPortSize = {1280.0f, 720.0f};
 
 
             std::unordered_map<char,std::shared_ptr<SubTexture2D>> m_TextureMap;

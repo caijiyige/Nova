@@ -19,6 +19,10 @@ target_link_libraries(test PUBLIC glad libglfw3.a opengl32.lib)
 target_precompile_headers(test PRIVATE Core/PCH.h)
 target_compile_definitions(test PUBLIC NV_EXPORT)
 target_include_directories(test PUBLIC ${PROJECT_SOURCE_DIR}/Novar/Core)
+target_link_options(test PRIVATE
+            -flto
+        )
+
 
 
 

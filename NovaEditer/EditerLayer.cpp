@@ -20,7 +20,7 @@ namespace NV
         spec.Height = 720;
 
         m_FrameBuffer = FrameBuffer::Create(spec);
-
+        m_FrameBuffer->Bind();
     }
 
     void EditerLayer::OnDetach()
@@ -152,9 +152,26 @@ namespace NV
             ImGui::Text("TotalVertexCount: %d",NV::Renderer2D::GetStats().GetTotalVertexCount());
             ImGui::Text("TotalIndexCount: %d",NV::Renderer2D::GetStats().GetTotalIndexCount());
             ImGui::Text("QuardIndexCount: %d",NV::Renderer2D::GetStats().GetQuardCount() * 6);
+            ImGui::End();
 
+            ImGui::Begin("FrameBuffer");
+            ImVec2 size = ImGui::GetContentRegionAvail();
+            /*
+            why do this 
+            because the ImGui::GetContentRegionAvail() will return the size of the window
+            but we want the size of the frame buffer
+            so we need to set the size of the frame buffer to the size of the window
+
+            */
+            NV_INFO("size: {0} {1}", size.x, size.y);
+            if (size.x != m_ViewPortSize.x || size.y != m_ViewPortSize.y)
+            {
+                m_FrameBuffer->Resize(size.x, size.y);
+                m_ViewPortSize = { size.x, size.y };
+                m_OrthoCameraControl.OnResize(size.x, size.y);
+            }
             uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-            ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureID)), ImVec2{ 1280, 720 });
+            ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureID)), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 0 }, ImVec2{ 1, 1 });
             ImGui::End();
 
             ImGui::End();
