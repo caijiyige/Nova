@@ -1,9 +1,12 @@
-#include "WindowsWindow.h"
+#include "Novar/PlatForm/Windows/WindowsWindow.h"
 
-#include "ApplicationEvent.h"
-#include "KeyEvent.h"
-#include "MouseEvent.h"
-#include "OpenGLContext.h"
+#include "Novar/Core/Base.h"
+#include "Novar/Core/Log.h"
+#include "Novar/Events/ApplicationEvent.h"
+#include "Novar/Events/KeyEvent.h"
+#include "Novar/Events/MouseEvent.h"
+#include "Novar/PlatForm/OpenGL/OpenGLContext.h"
+
 
 namespace NV
 {

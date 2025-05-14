@@ -1,8 +1,6 @@
 #pragma once
-
-#include "Core.h"
-#include "Layer.h"
 #include <vector>
+#include "Novar/Core/Layer.h"
 
 namespace NV
 {

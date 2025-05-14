@@ -1,8 +1,11 @@
-#include "Buffer.h"
-#include "Core.h"
-#include "Renderer.h"
+#include "Novar/PCH.h"
 
-#include "OpenGLBuffer.h"
+#include "Novar/Core/Base.h"
+#include "Novar/Renderer/Buffer.h"
+#include "Novar/Renderer/Renderer.h"
+
+#include "Novar/PlatForm/OpenGL/OpenGLBuffer.h"
+
 namespace NV{
     std::shared_ptr<VertexBuffer> VertexBuffer::Create(unsigned int size)
     {

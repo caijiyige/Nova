@@ -1,5 +1,5 @@
 #pragma once
-#include "Shader.h"
+#include "Novar/Renderer/Shader.h"
 
 namespace NV
 {

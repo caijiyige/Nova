@@ -1,15 +1,14 @@
-#include "ImguiLayer.h"
+#include "Novar/Imgui/ImguiLayer.h"
 
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+//IMGUI
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
+#include "Novar/Core/Application.h"
 
-
-
-#include "Application.h"
-#include "glad.h"
-#include "glfw3.h" // Include glfw3.h after our OpenGL definitions
+#include <glad.h>
+#include <glfw3.h> // Include glfw3.h after our OpenGL definitions
 
 
 namespace NV
@@ -37,6 +36,8 @@ namespace NV
         //io.ConfigFlags |= ImGuiConfigFlags_IsTouchScreen; // Enable Touch Screen
         //io.ConfigFlags |= ImGuiConfigFlags_NoMouse; // Disable Mouse
         //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange; // Disable Mouse Cursor Change
+
+        io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Light.ttf", 16.0f);
 
         ImGui::StyleColorsDark();
 
@@ -66,17 +67,31 @@ namespace NV
         ImGui::DestroyContext();
     }
 
-    void ImguiLayer::OnImGuiRender()
-    {
-       // static bool show = true;
-       // ImGui::ShowDemoWindow(&show);
+    // void ImguiLayer::OnImGuiRender()
+    // {
+    //    // static bool show = true;
+    //    // ImGui::ShowDemoWindow(&show);
       
-    }
+    // }
 
     void ImguiLayer::OnUpdate(Timestep ts)
     {
         
        
+    }
+
+    void ImguiLayer::OnEvent(Event &e)
+    {
+        /*
+        if (m_BlockEvent)
+        {
+            ImGuiIO& io = ImGui::GetIO();
+            if (e.IsInCategory(EventCategory::Mouse) || io.WantCaptureMouse)
+                e.m_Handled = true;
+            if (e.IsInCategory(EventCategory::Keyboard) || io.WantCaptureKeyboard)
+                e.m_Handled = true;
+        }*/
+        
     }
 
     void ImguiLayer::Begin()

@@ -1,5 +1,5 @@
-#include "VertexArray.h"
-
+#pragma once
+#include "Novar/Renderer/VertexArray.h"
 namespace NV
 {
     class OpenGLVertexArray : public VertexArray

@@ -1,4 +1,5 @@
-#include "Buffer.h"
+#pragma once
+#include "Novar/Renderer/Buffer.h"
 
 namespace NV
 {

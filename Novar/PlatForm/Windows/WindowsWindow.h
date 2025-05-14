@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Window.h"
-#include "Core.h"
-#include "glad.h"
-#include "glfw3.h"
-#include "GraphicsContext.h"
+#include <glad.h>
+#include <glfw3.h>
+
+#include "Novar/Core/Window.h"
+#include "Novar/Renderer/GraphicsContext.h"
+
 
 namespace NV
 {

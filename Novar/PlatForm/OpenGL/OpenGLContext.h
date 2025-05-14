@@ -1,9 +1,9 @@
 #pragma once
 
-#include "GraphicsContext.h"
-#include "glad.h" // Include glad to get all the required OpenGL headers
-#include "glfw3.h"
+#include "Novar/Renderer/GraphicsContext.h"
 
+#include <glad.h>
+#include <glfw3.h>
 namespace NV
 {
     class OpenGLContext: public  GraphicsContext

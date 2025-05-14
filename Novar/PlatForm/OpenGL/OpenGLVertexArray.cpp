@@ -1,6 +1,5 @@
-
-#include "OpenGLVertexArray.h"
-#include "glad.h"
+#include "Novar/PlatForm/OpenGL/OpenGLVertexArray.h"
+#include <glad.h>
 namespace NV
 {
 

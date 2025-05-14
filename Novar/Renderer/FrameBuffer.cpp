@@ -1,6 +1,10 @@
-#include "FrameBuffer.h"
-#include "Renderer.h"
-#include "OpenGLFrameBuffer.h"
+#include "Novar/PCH.h"
+#include "Novar/Core/Base.h"
+#include "Novar/Renderer/FrameBuffer.h"
+#include "Novar/Renderer/Renderer.h"
+
+#include "Novar/PlatForm/OpenGL/OpenGLFrameBuffer.h"
+
 
 namespace NV
 {

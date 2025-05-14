@@ -1,7 +1,5 @@
-#include "OpenGLContext.h"
-#include "Log.h"
-
-
+#include "Novar/PlatForm/OpenGL/OpenGLContext.h"
+#include "Novar/Core/Log.h"
 
 namespace NV
 {

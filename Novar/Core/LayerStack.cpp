@@ -1,6 +1,7 @@
-#include "Layer.h"
-#include "LayerStack.h" 
 
+#include "Novar/Core/LayerStack.h" 
+
+#include "Novar/Core/Layer.h"
 namespace NV
 {
     LayerStack::LayerStack()

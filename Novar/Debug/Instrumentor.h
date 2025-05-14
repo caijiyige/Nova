@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Log.h"
+#include "Novar/Core/Base.h"
 
 #include <algorithm>
 #include <chrono>
@@ -222,7 +222,7 @@ namespace NV {
 	#elif defined(__cplusplus) && (__cplusplus >= 201103)
 		#define NV_FUNC_SIG __func__
 	#else
-		#define NV_FUNC_SIG  NV_FUNC_SIG unknown!"
+		#define NV_FUNC_SIG  "NV_FUNC_SIG unknown!"
 	#endif
 
 	#define NV_PROFILE_BEGIN_SESSION(name, filepath) ::NV::Instrumentor::Get().BeginSession(name, filepath)

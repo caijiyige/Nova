@@ -1,13 +1,19 @@
-#include "Application.h"
-#include "Log.h"
+#include "Novar/Core/Application.h"
+#include "Novar/Core/Base.h"
+#include "Novar/Core/Timestep.h"
+#include "Novar/Core/Input.h"
 
-#include "glfw3.h"
-#include "Input.h"
 
-#include "Renderer.h"
-#include "Renderer2D.h"
+#include <glfw3.h>
 
-#include "Timestep.h"
+#include "Novar/Renderer/Renderer.h"
+#include "Novar/Renderer/Renderer2D.h"
+#include "Novar/Renderer/Shader.h"
+#include "Novar/Renderer/Buffer.h"
+#include "Novar/Renderer/VertexArray.h"
+#include "Novar/Renderer/OrthographicCamera.h"
+
+
 
 namespace NV
 {
@@ -25,7 +31,7 @@ namespace NV
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
         Renderer::Init();
-        Renderer2D::Init();
+        
 
         m_ImGuiLayer = new ImguiLayer();
         PushLayer(m_ImGuiLayer);   
@@ -73,10 +79,17 @@ namespace NV
 
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {
+            
             (*--it)->OnEvent(e);
             if (e.m_Handled)
                 break;
+            
         }
+    }
+
+    void Application::BlockEvents(bool bBlock)
+    {
+        m_ImGuiLayer->BlockEvents(bBlock);
     }
     void Application::PushLayer(Layer *layer)
     {

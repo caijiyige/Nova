@@ -1,8 +1,9 @@
+#include "Novar/Renderer/VertexArray.h"
+#include "Novar/Renderer/Renderer.h"
 
-#include "VertexArray.h"
-#include "Renderer.h"
+#include "Novar/PlatForm/OpenGL/OpenGLVertexArray.h"
+#include "Novar/Core/Base.h"
 
-#include "OpenGLVertexArray.h"
 namespace NV
 {
     std::shared_ptr<VertexArray> VertexArray::Create()

@@ -1,5 +1,5 @@
-#include "OpenGLBuffer.h"
-#include "glad.h"
+#include "Novar/PlatForm/OpenGL/OpenGLBuffer.h"
+#include <glad.h>
 namespace NV{
     OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
     {

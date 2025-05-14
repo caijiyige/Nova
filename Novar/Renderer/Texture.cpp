@@ -1,10 +1,8 @@
-#include "Texture.h"
-#include "Renderer.h"
+#include "Novar/Renderer/Texture.h"
+#include "Novar/Renderer/Renderer.h"
 
-#include "OpenGLTexture2D.h"
-
-
-
+#include "Novar/PlatForm/OpenGL/OpenGLTexture2D.h"
+#include "Novar/Core/Base.h"
 namespace NV
 {
     std::shared_ptr<Texture2D> Texture2D::Create(const uint32_t width, const uint32_t height)

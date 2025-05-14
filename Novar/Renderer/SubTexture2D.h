@@ -1,7 +1,9 @@
 #pragma once
-#include "PCH.h"
-#include "Texture.h"
-#include "glm.hpp"
+#include "Novar/PCH.h"
+
+#include "Novar/Renderer/Texture.h"
+#include <glm/glm.hpp>
+
 namespace NV
 {
     class SubTexture2D

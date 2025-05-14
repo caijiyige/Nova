@@ -1,6 +1,6 @@
-#include "RendererCommand.h"
+#include "Novar/Renderer/RendererCommand.h"
 
-#include "OpenGLRendererAPI.h"
+#include "Novar/Platform/OpenGL/OpenGLRendererAPI.h"
 
 
 namespace NV

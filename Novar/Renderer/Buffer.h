@@ -1,6 +1,7 @@
 #pragma once
-#include "PCH.h"
-#include "Log.h"
+
+#include <vector>
+
 namespace NV{
 
     enum class ShaderDataType
@@ -61,7 +62,7 @@ namespace NV{
             case ShaderDataType::Int4:   return 4;
             case ShaderDataType::Bool:   return 1;
             }
-        NV_CORE_ASSERT(false,"Unknown ElementsCount")
+       
         return 0;
         }
 

@@ -1,6 +1,6 @@
-#include "OpenGLRendererAPI.h"
+#include "Novar/PlatForm/OpenGL/OpenGLRendererAPI.h"
 
-#include "glad.h"
+#include <glad.h>
 namespace NV
 {
     void OpenGLRendererAPI::Init()

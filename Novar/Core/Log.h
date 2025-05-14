@@ -1,44 +1,60 @@
 #pragma once
 
+#include "Novar/Core/Base.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
 
-#include "Core.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/fmt/ostr.h"
-#include <spdlog/sinks/basic_file_sink.h>
+// This ignores all warnings raised inside External headers
+#pragma warning(push, 0)
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
+#pragma warning(pop)
 
-namespace NV{
-    class NOVA_API Log
-    {
-        public:
-        static void Init();
-        inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }    
-        inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+namespace NV {
 
-        private:
+	class Log
+	{
+	public:
+		static void Init();
 
-        static std::shared_ptr<spdlog::logger> s_CoreLogger;
-        static std::shared_ptr<spdlog::logger> s_ClientLogger;
-
-    };
-
-   
-
-
-
+		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+		static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+	private:
+		static Ref<spdlog::logger> s_CoreLogger;
+		static Ref<spdlog::logger> s_ClientLogger;
+	};
 
 }
 
-    // Core log macros
+template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, const glm::vec<L, T, Q>& vector)
+{
+	return os << glm::to_string(vector);
+}
+
+template<typename OStream, glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, const glm::mat<C, R, T, Q>& matrix)
+{
+	return os << glm::to_string(matrix);
+}
+
+template<typename OStream, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
+{
+	return os << glm::to_string(quaternion);
+}
+
+// Core log macros
 #define NV_CORE_TRACE(...)    ::NV::Log::GetCoreLogger()->trace(__VA_ARGS__)
 #define NV_CORE_INFO(...)     ::NV::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define NV_CORE_WARN(...)     ::NV::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define NV_CORE_ERROR(...)    ::NV::Log::GetCoreLogger()->error(__VA_ARGS__)
-
+#define NV_CORE_CRITICAL(...) ::NV::Log::GetCoreLogger()->critical(__VA_ARGS__)
 
 // Client log macros
 #define NV_TRACE(...)         ::NV::Log::GetClientLogger()->trace(__VA_ARGS__)
 #define NV_INFO(...)          ::NV::Log::GetClientLogger()->info(__VA_ARGS__)
 #define NV_WARN(...)          ::NV::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define NV_ERROR(...)         ::NV::Log::GetClientLogger()->error(__VA_ARGS__)
+#define NV_CRITICAL(...)      ::NV::Log::GetClientLogger()->critical(__VA_ARGS__)

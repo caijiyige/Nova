@@ -1,7 +1,9 @@
-#include "OpenGLTexture2D.h"
-#include "Log.h"
-#include "glad.h"
-#include "stb_image.h"
+#include "Novar/PlatForm/OpenGL/OpenGLTexture2D.h"
+
+#include "Novar/Core/Log.h"
+
+#include <glad.h>
+#include <stb_image.h>
 
 
 namespace NV{
@@ -56,13 +58,13 @@ namespace NV{
     }
 
     OpenGLTexture2D::OpenGLTexture2D(const std::string &path)
-    :m_path(path)
+    :m_Path(path)
     {
         int width,height,channels;
         stbi_set_flip_vertically_on_load(1);
-        unsigned char* data =  stbi_load(m_path.c_str(),&width,&height,&channels,0);
+        unsigned char* data =  stbi_load(m_Path.c_str(),&width,&height,&channels,0);
         NV_CORE_ASSERT(data," failed to load image");
-
+        m_IsLoaded = true;
         m_Width = width;
         m_Height = height;
         GLenum internalFormat = GL_RGB8;

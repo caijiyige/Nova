@@ -1,7 +1,9 @@
-#include "PCH.h"
+#include "Novar/PlatForm/OpenGL/OpenGLShader.h"
+#include "Novar/PCH.h"
 #include <fstream>
-#include "OpenGLShader.h"
-#include "Log.h"
+
+#include "Novar/Core/Base.h"
+
 #include "glad.h"
 
 

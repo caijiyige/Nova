@@ -1,8 +1,8 @@
+#include "Novar/Renderer/Shader.h"
+#include "Novar/Renderer/Renderer.h"
 
-#include "Shader.h"
-#include "Renderer.h"
-
-#include "OpenGLShader.h"
+#include "Novar/PlatForm/OpenGL/OpenGLShader.h"
+#include "Novar/Core/Base.h"
 namespace NV
 {
     std::shared_ptr<Shader> Shader::Create(const std::string &path)

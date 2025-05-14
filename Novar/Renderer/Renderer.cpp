@@ -1,6 +1,7 @@
-#include "Renderer.h"
+#include "Novar/Renderer/Renderer.h"
 
-#include "OpenGLShader.h"
+#include "Novar/PlatForm/OpenGL/OpenGLShader.h"
+
 
 namespace NV{
     Renderer::SceneData* Renderer::m_SceneData = new Renderer::SceneData;
@@ -15,7 +16,9 @@ namespace NV{
         RendererCommand::SetViewport(0,0,width,height);
     }
 
-    void Renderer::BeginScene(OrthographicCamera &camera)
+
+
+    void Renderer::BeginScene(const OrthographicCamera &camera)
     {
         m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 
@@ -25,13 +28,4 @@ namespace NV{
 
 
     }
-   /*void Renderer::Submit(const std::shared_ptr<VertexArray> &vertexArray,const std::shared_ptr<Shader>& shader,const glm::mat4& transform)
-    {
-
-        shader->Bind();
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4f("u_ViewProjection",m_SceneData->ViewProjectionMatrix);
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4f("u_ModelMatrix",transform);
-        vertexArray->Bind();
-        RendererCommand::DrawIndexed(vertexArray);
-    }*/ 
 }

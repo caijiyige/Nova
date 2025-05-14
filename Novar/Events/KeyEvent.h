@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Event.h"
+#include "Novar/Events/Event.h"
 
 
 namespace NV

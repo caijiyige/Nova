@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Novar/Debug/Instrumentor.h"
 #ifdef NV_PLATFORM_WINDOWS
 
 extern NV::Application* NV::CreateApplication();

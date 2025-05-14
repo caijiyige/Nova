@@ -1,23 +1,23 @@
-#include "EditerLayer.h"
-#include "EntryPoint.h"
+#include "NovaEditor/EditorLayer.h"
+#include "Novar/Core/EntryPoint.h"
 
 namespace NV
 {
-    class NVEditerApp : public Application
+    class NVEditorApp : public Application
     {
     private:
         /* data */
     public:
-        NVEditerApp ()
-        : Application("Nova Editer")
+        NVEditorApp ()
+        : Application("Nova Editor")
         {
             
         // PushLayer(new ExampleLayer());
 
-        PushLayer(new EditerLayer());
+        PushLayer(new EditorLayer());
             
         }
-        ~NVEditerApp ()
+        ~NVEditorApp ()
         {
 
         }
@@ -27,7 +27,7 @@ namespace NV
     // To be defined in CLIENT
     NV::Application* CreateApplication()
     {
-        return new NVEditerApp();
+        return new NVEditorApp();
     }
 
 }

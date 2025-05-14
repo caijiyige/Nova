@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.h"
+#include "Novar/Core/Base.h"
 
 namespace NV
 {

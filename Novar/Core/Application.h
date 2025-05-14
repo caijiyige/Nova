@@ -1,16 +1,15 @@
 #pragma once
-#include "Core.h"
-#include "Window.h"
-#include "LayerStack.h"
-#include "Event.h"
-#include "ApplicationEvent.h"
-#include "ImguiLayer.h"
 
-#include "Shader.h"
-#include "Buffer.h"
-#include "VertexArray.h"
+#include "Novar/Core/Window.h"
+#include "Novar/Core/LayerStack.h"
 
-#include "OrthographicCamera.h"
+#include "Novar/Events/Event.h"
+#include "Novar/Events/ApplicationEvent.h"
+
+#include "Novar/Imgui/ImguiLayer.h"
+
+
+
 namespace NV
 {
     class NOVA_API Application
@@ -28,6 +27,10 @@ namespace NV
         inline Window& GetWindow() { return *m_Window; }
 
         void Close() { m_Running = false; }
+
+        ImguiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+
+        void BlockEvents(bool bBlock);
 
     private:
         bool OnWindowClose(WindowCloseEvent& e);

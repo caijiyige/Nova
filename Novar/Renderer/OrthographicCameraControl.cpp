@@ -1,7 +1,7 @@
-#include "OrthographicCameraControl.h"
+#include "Novar/Renderer/OrthographicCameraControl.h"
 
-#include "Input.h"
-#include "KeyCodes.h"
+#include "Novar/Core/Input.h"
+#include "Novar/Core/KeyCodes.h"
 
 namespace NV
 {
@@ -14,22 +14,22 @@ namespace NV
     {
 
         
-        if(Input::IsKeyPressed(NOVA_KEY_A))
+        if(Input::IsKeyPressed(Key::A))
             m_CameraPosition.x -= m_CameraTranslationSpeed * ts.GetSeconds();
-        if(Input::IsKeyPressed(NOVA_KEY_D))
+        if(Input::IsKeyPressed(Key::D))
             m_CameraPosition.x += m_CameraTranslationSpeed * ts.GetSeconds();
-        if(Input::IsKeyPressed(NOVA_KEY_S))
+        if(Input::IsKeyPressed(Key::S))
             m_CameraPosition.y -= m_CameraTranslationSpeed * ts.GetSeconds();
-        if(Input::IsKeyPressed(NOVA_KEY_W))
+        if(Input::IsKeyPressed(Key::W))
             m_CameraPosition.y += m_CameraTranslationSpeed * ts.GetSeconds();
 
         
 
         if (m_Rotation)
         {
-            if(Input::IsKeyPressed(NOVA_KEY_Q))
+            if(Input::IsKeyPressed(Key::Q))
             m_CameraRotation -= m_CameraRotationSpeed * ts.GetSeconds();
-            if(Input::IsKeyPressed(NOVA_KEY_E))
+            if(Input::IsKeyPressed(Key::E))
             m_CameraRotation += m_CameraRotationSpeed * ts.GetSeconds();
             m_Camera.SetRotation(m_CameraRotation);
             

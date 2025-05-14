@@ -1,9 +1,11 @@
 #pragma once
-#include "OrthographicCamera.h"
-#include "Timestep.h"
 
-#include "ApplicationEvent.h"
-#include "MouseEvent.h"
+#include "Novar/Core/Timestep.h"
+#include "Novar/Renderer/OrthographicCamera.h"
+
+#include "Novar/Events/ApplicationEvent.h"
+#include "Novar/Events/MouseEvent.h"
+
 namespace NV
 {
        class OrthographicCameraControl
