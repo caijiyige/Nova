@@ -147,6 +147,33 @@ namespace NV
 		spEntity->Destroy();
     }
 
+    void Scene::OnRuntimeStart()
+    {
+        m_IsRunning = true;
+        OnPhysics2DStart();
+
+    }
+
+    void Scene::OnRuntimeStop()
+    {
+        m_IsRunning = false;
+        OnPhysics2DStop();
+    }
+
+    void Scene::OnSimulationStart()
+    {
+        OnPhysics2DStart();
+    }
+
+    void Scene::OnSimulationStop()
+    {
+        OnPhysics2DStop();
+    }
+
+    void Scene::OnShowPhysicsCollider(const std::shared_ptr<Camera> &spCamera)
+    {
+    }
+
     // std::shared_ptr<Entity> Scene::DuplicateEntity(Entity entity)
     // {
     //     Entity newEntity = CreateEntity(entity.GetName());
@@ -159,23 +186,8 @@ namespace NV
    
     void Scene::OnUpdateEditor(Timestep ts,const std::shared_ptr<EditorCamera>& camera)
 	{
-		// Render
-		if(!m_IsPaused || m_StepFrames-- > 0)
-		{
-			m_spPhysics2D->OnUpdate(ts);
-
-			auto components = m_spRegistry->view<Rigidbody2DComponent>();
-			for (auto component : components)
-			{
-				auto spEntity = std::make_shared<Entity>(m_spRegistry, component);
-				auto& transform = spEntity->GetComponent<TransformComponent>();
-				auto& rigidBody2D = spEntity->GetComponent<Rigidbody2DComponent>();
-
-				m_spPhysics2D->UpdateSystem(rigidBody2D, transform);
-			}
-		}
-		auto cam = std::dynamic_pointer_cast<Camera>(camera);
-		RenderScene(cam);
+        
+        RenderScene(camera);
 	}
     void Scene::OnUpdateRuntime(Timestep ts)
     {
@@ -246,8 +258,45 @@ namespace NV
         return nullptr;
     }
 
-    void Scene::RenderScene(std::shared_ptr<Camera>& camera)
-	{
+    void Scene::OnPhysics2DStart()
+    {
+        m_spPhysics2D = std::make_shared<Physics2D>();
+        auto components = m_spRegistry->view<Rigidbody2DComponent>();
+        for (auto component : components)
+        {
+            auto spEntity = std::make_shared<Entity>(m_spRegistry, component);
+            auto& transform = spEntity->GetComponent<TransformComponent>();
+            auto& rigidBody2D = spEntity->GetComponent<Rigidbody2DComponent>();
+
+            m_spPhysics2D->CreateBody(rigidBody2D, transform);
+
+            if (spEntity->HasComponent<BoxCollider2DComponent>())
+            {
+                auto& boxCollider2D = spEntity->GetComponent<BoxCollider2DComponent>();
+                m_spPhysics2D->CreatePolygonShape(boxCollider2D, transform);
+            }
+            /*
+            if (spEntity->HasComponent<CircleCollider2DComponent>())
+            {
+                auto& circleCollider2D = spEntity->GetComponent<CircleCollider2DComponent>();
+
+                m_spPhysicsSystem2D->CreateCircleShape(circleCollider2D, transform);
+            }*/
+        }
+    }
+
+    void Scene::OnPhysics2DStop()
+    {
+        m_spPhysics2D = nullptr;
+    }
+
+    void Scene::OnUpdatePhysics2D(Timestep ts)
+    {
+
+    }
+
+    void Scene::RenderScene(const std::shared_ptr<Camera> &camera)
+    {
 		Renderer2D::BeginScene(camera);
 
 		// Draw sprites

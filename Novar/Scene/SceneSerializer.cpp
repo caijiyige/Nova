@@ -280,7 +280,6 @@ namespace NV
 
         std::ofstream fout(filepath);
         fout << out.c_str(); // Write to file
-
     }
     void SceneSerializer::SerializeRuntime(const std::string &filepath)
     {

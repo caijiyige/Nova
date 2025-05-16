@@ -69,8 +69,8 @@ namespace NV
 
 	void Physics2D::OnUpdate(const Timestep& timeStep)
 	{
-		b2World_Step(m_spPhysicsWorldId, (float)timeStep, 1.0);
-		
+		float time = (float)timeStep;
+		b2World_Step(m_spPhysicsWorldId, float(1/60), 4);
 	}
 
 	void Physics2D::UpdateSystem(Rigidbody2DComponent& rigidBody2D, TransformComponent& transform)

@@ -14,9 +14,9 @@ namespace NV
 
         static void Init();
         static void ShutDown();
-        static void BeginScene(const Camera& camera, const glm::mat4& transform = glm::mat4(1.0f));
+        static void BeginScene(const std::shared_ptr<Camera>& camera, const glm::mat4& transform = glm::mat4(1.0f));
         static void BeginScene(OrthographicCamera& camera);
-        static void BeginScene(std::shared_ptr<Camera>& camera);
+        static void BeginScene(const std::shared_ptr<EditorCamera>& camera);
 
         static void EndScene();
 

@@ -28,14 +28,14 @@ namespace NV
             bool OnMousePressed(MouseButtonPressedEvent& e);
 
             void NewScene();
-            void OpenScene();
+            //void OpenScene();
             void OpenScene(const std::filesystem::path& path);
-            void SaveSceneAs();
+            //void SaveSceneAs();
             void SaveScene();
 
             void OpenProject();
-            void OpenProject(const std::filesystem::path& path);
-            void SaveProject();
+            //void OpenProject(const std::filesystem::path& path);
+            //void SaveProject();
 
             void OnScenePlay();
             void OnSceneSimulate();
@@ -79,7 +79,7 @@ namespace NV
 
             SceneState m_SceneState = SceneState::Edit;
 
-            bool m_bShowDemoWindow = false;
+            bool m_bShowDemoWindow = true;
             bool m_bShowPhysicsCollider = false;
 
             //Resize data

@@ -16,6 +16,20 @@ namespace NV
         {
             return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
         }
+
+        static void CreatTextures(bool multisampled, uint32_t count, uint32_t* outIDs)
+        {
+            
+            glCreateTextures(TextureTarget(multisampled), count, outIDs);
+            for (uint32_t i = 0; i < count; i++)
+            {
+                glBindTexture(GL_TEXTURE_2D, outIDs[i]);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            }
+        }
         static void BindTexture( bool multisampled, uint32_t id)
         {
             glBindTexture(TextureTarget(multisampled), id);
@@ -64,19 +78,7 @@ namespace NV
         }
 
 
-        static void CreatTextures(bool multisampled, uint32_t count, uint32_t* outIDs)
-        {
-            
-            glCreateTextures(TextureTarget(multisampled), count, outIDs);
-            for (uint32_t i = 0; i < count; i++)
-            {
-                glBindTexture(GL_TEXTURE_2D, outIDs[i]);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            }
-        }
+        
         static bool IsDepthFormat(FrameBufferTextureFormat format)
         {
             switch (format)
@@ -120,11 +122,9 @@ namespace NV
             }
             else
             {
-                m_ColorAttachmentsSpecification.push_back(attachment);
+                m_ColorAttachmentsSpecification.emplace_back(attachment);
             }
         }
-        
-        
         Invalidate();
 
     }
@@ -220,7 +220,7 @@ namespace NV
 
         if(m_ColorAttachments.size() > 1)
         {
-            GLenum buffers[s_MaxFrameBufferColorAttachments];
+            GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
             glDrawBuffers(m_ColorAttachments.size(), buffers);
 
         }
@@ -239,10 +239,15 @@ namespace NV
         glReadnPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, sizeof(int), &pixelValue);
         return pixelValue;
     }
-    void OpenGLFrameBuffer::Resize(float x, float y)
+    void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
     {
-        m_Specification.Width = x;
-        m_Specification.Height = y;
+        if (width == 0 || height == 0 || width > s_MaxFrameBufferSize || height > s_MaxFrameBufferSize)
+		{
+			NV_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
+			return;
+		}
+		m_Specification.Width = width;
+		m_Specification.Height = height;
         Invalidate();
     }
 

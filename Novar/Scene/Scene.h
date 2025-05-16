@@ -67,7 +67,7 @@ namespace NV
             void OnPhysics2DStop();
             void OnUpdatePhysics2D(Timestep ts);
 
-            void RenderScene(std::shared_ptr<Camera>& camera);
+            void RenderScene(const std::shared_ptr<Camera>& camera);
 
 
         private:

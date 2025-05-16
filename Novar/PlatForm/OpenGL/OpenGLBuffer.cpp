@@ -20,13 +20,12 @@ namespace NV{
     }
     void OpenGLVertexBuffer::Bind() const
     {
-        glBindVertexArray(m_RenderId);
+        glBindBuffer(GL_ARRAY_BUFFER,m_RenderId);
 
     }
     void OpenGLVertexBuffer::UnBind() const
     {
-        glBindVertexArray(0);
-
+         glBindBuffer(GL_ARRAY_BUFFER,0);
     }
 
     void OpenGLVertexBuffer::SetData(const void *data, uint32_t size)

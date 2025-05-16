@@ -6,8 +6,9 @@
 namespace NV
 {
     EditorLayer::EditorLayer()
-        : Layer("EditorLayer")
+        : Layer("EditorLayer"),m_SceneState(SceneState::Edit)
     {
+        Renderer2D::Init();
         //创建编辑器相机
         m_EditorCamera = std::make_shared<EditorCamera>(45.0f, 1280.0f / 720.0f,-1.0f,1.0f);
         //创建编辑器场景
@@ -22,8 +23,15 @@ namespace NV
         spec.Width = 1280;
         spec.Height = 720;
         m_FrameBuffer = FrameBuffer::Create(spec);
+
         //创建纹理
-        m_Texture2D = NV::Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/textures/Checkerboard.png");
+        m_Texture2D = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/textures/Checkerboard.png");
+        m_IconPause = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/PauseButton.png");
+        m_IconPlay = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/PlayButton.png");
+        m_IconStep = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/StepButton.png");
+        m_IconStop = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/StopButton.png");
+        m_IcomSimulate = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/SimulateButton.png");
+        
     }
     void EditorLayer::OnAttach()
     {
@@ -60,7 +68,7 @@ namespace NV
                 RendererCommand::Clear();
 
             }
-
+            
             //Scene State
 
             switch (m_SceneState)
@@ -72,15 +80,13 @@ namespace NV
                 }
                 case SceneState::Edit:
                 {
-                    auto spEditorCamera = std::dynamic_pointer_cast<EditorCamera>(m_EditorCamera);
-                    spEditorCamera->OnUpdate(ts);
-                    m_EditorScene->OnUpdateEditor(ts, m_EditorCamera);
+                    m_EditorCamera->OnUpdate(ts);
+                    m_EditorScene->OnUpdateEditor(ts,m_EditorCamera);
                     break;
                 }
                 case SceneState::Simulate:
                 {
-                    auto spEditorCamera = std::dynamic_pointer_cast<EditorCamera>(m_EditorCamera);
-                    m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+                    m_ActiveScene->OnUpdateRuntime(ts);
                     break;
                 }
 	        }
@@ -153,107 +159,110 @@ namespace NV
         if(!opt_padding)
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
-        if (!opt_padding)
-            ImGui::PopStyleVar();
-
-        if (opt_fullscreen)
-            ImGui::PopStyleVar(2);
-
-        // DockSpace
-        ImGuiIO& io = ImGui::GetIO();
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
         {
-            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        }
+            if (!opt_padding)
+                ImGui::PopStyleVar();
 
-        if (ImGui::BeginMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
+            if (opt_fullscreen)
+                ImGui::PopStyleVar(2);
+
+            // DockSpace
+            ImGuiIO& io = ImGui::GetIO();
+            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
             {
-                if (ImGui::MenuItem("New", "Ctrl+O"))
-                {
-                    NewScene();
-                }
-                if (ImGui::MenuItem("Open...","Ctrl+O"))
-                {
-                    OpenScene();
-                }
-                if (ImGui::MenuItem("Save As...","Ctrl+Shift+S"))
-                {
-                    SaveSceneAs();
-                }
-                if (ImGui::MenuItem("Exit"))
-                { 
-                    Application::Get().Close();; 
-                }
-                ImGui::EndMenu();
+                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
             }
-                
-            ImGui::EndMenuBar();
-        }
-        
-        {
-            ImGui::Begin("Scene Hierachy");
-            m_SceneHierarchyPanel->OnImGuiRender();
-            ImGui::End();
-        }
 
-        {
-            ImGui::Begin("Status");
-            ImGui::Text("QuardCount: %d",NV::Renderer2D::GetStats().GetQuardCount());
-            ImGui::Text("DrawCalls: %d",NV::Renderer2D::GetStats().GetDrawCalls());
-            ImGui::Text("TotalVertexCount: %d",NV::Renderer2D::GetStats().GetTotalVertexCount());
-            ImGui::Text("TotalIndexCount: %d",NV::Renderer2D::GetStats().GetTotalIndexCount());
-            ImGui::Text("QuardIndexCount: %d",NV::Renderer2D::GetStats().GetQuardCount() * 6);
-            ImGui::End();
-        }
+            if (ImGui::BeginMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    if (ImGui::MenuItem("New", "Ctrl+O"))
+                    {
+                        NewScene();
+                    }
+                    // if (ImGui::MenuItem("Open...","Ctrl+O"))
+                    // {
+                    //     OpenScene();
+                    // }
+                    /*if (ImGui::MenuItem("Save As...","Ctrl+Shift+S"))
+                    {
+                        SaveSceneAs();
+                    }*/
+                    if (ImGui::MenuItem("Exit"))
+                    { 
+                        Application::Get().Close();; 
+                    }
+                    ImGui::EndMenu();
+                }
+                    
+                ImGui::EndMenuBar();
+            }
+            
+            {
+                m_SceneHierarchyPanel->OnImGuiRender(); 
+            }
 
-        ImGui::Begin("Setting");
-        ImGui::Checkbox("Show Physics Collider", &m_bShowPhysicsCollider);
-        ImGui::Checkbox("Show Demo Window", &m_bShowDemoWindow);
-        if (m_bShowDemoWindow)
-        {
-            ImGui::ShowDemoWindow(&m_bShowDemoWindow);
+            {
+                ImGui::Begin("Status");
+                ImGui::Text("QuardCount: %d",NV::Renderer2D::GetStats().GetQuardCount());
+                ImGui::Text("DrawCalls: %d",NV::Renderer2D::GetStats().GetDrawCalls());
+                ImGui::Text("TotalVertexCount: %d",NV::Renderer2D::GetStats().GetTotalVertexCount());
+                ImGui::Text("TotalIndexCount: %d",NV::Renderer2D::GetStats().GetTotalIndexCount());
+                ImGui::Text("QuardIndexCount: %d",NV::Renderer2D::GetStats().GetQuardCount() * 6);
+                ImGui::End();
+            }
+            {
+                ImGui::Begin("Setting");
+                ImGui::Checkbox("Show Physics Collider", &m_bShowPhysicsCollider);
+                ImGui::Checkbox("Show Demo Window", &m_bShowDemoWindow);
+                if (m_bShowDemoWindow)
+                {
+                    ImGui::ShowDemoWindow(&m_bShowDemoWindow);
+                }
+                ImGui::End();
+            }
+            
+            {
+                ImGui::Begin("viewport");
+
+                ImVec2 vec2MinRegion = ImGui::GetWindowContentRegionMin();
+                ImVec2 vec2MaxRegion = ImGui::GetWindowContentRegionMax();
+                auto vec2WindowPos = ImGui::GetWindowPos();
+                m_vec2RenderViewPortBounds[0] = { vec2MinRegion.x + vec2WindowPos.x, vec2MinRegion.y + vec2WindowPos.y };
+                m_vec2RenderViewPortBounds[1] = { vec2MaxRegion.x + vec2WindowPos.x, vec2MaxRegion.y + vec2WindowPos.y };
+
+                m_bViewportHovered = ImGui::IsWindowHovered();
+                m_bViewportFocused = ImGui::IsWindowFocused();
+                Application::Get().BlockEvents(!m_bViewportHovered);
+
+                m_vec2RenderViewPortSize = ImGui::GetContentRegionAvail();
+                auto spFrameBuffer = std::dynamic_pointer_cast<FrameBuffer>(m_FrameBuffer);
+                NV_ASSERT(spFrameBuffer, "FrameBuffer is null in Edit Layer");
+                auto uiTextureID = spFrameBuffer->GetColorAttachmentRendererID();
+                ImGui::Image((ImTextureID)(intptr_t)uiTextureID, m_vec2RenderViewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                    {
+                        const wchar_t* path = (const wchar_t*)payload->Data;
+                        OpenScene(path);
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+                ImGui::End();
+            }
+
+            
+
+            //uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+            //ImGui::Image((ImTextureID)((intptr_t)(textureID)), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 0 }, ImVec2{ 1, 1 });
+            
+            UIToolbar();
         }
         ImGui::End();
-
-        ImGui::Begin("viewport");
-
-        ImVec2 vec2MinRegion = ImGui::GetWindowContentRegionMin();
-        ImVec2 vec2MaxRegion = ImGui::GetWindowContentRegionMax();
-        auto vec2WindowPos = ImGui::GetWindowPos();
-        m_vec2RenderViewPortBounds[0] = { vec2MinRegion.x + vec2WindowPos.x, vec2MinRegion.y + vec2WindowPos.y };
-        m_vec2RenderViewPortBounds[1] = { vec2MaxRegion.x + vec2WindowPos.x, vec2MaxRegion.y + vec2WindowPos.y };
-
-        m_bViewportHovered = ImGui::IsWindowHovered();
-        m_bViewportFocused = ImGui::IsWindowFocused();
-        Application::Get().BlockEvents(!m_bViewportHovered);
-
-        m_vec2RenderViewPortSize = ImGui::GetContentRegionAvail();
-        auto spFrameBuffer = std::dynamic_pointer_cast<FrameBuffer>(m_FrameBuffer);
-        NV_ASSERT(spFrameBuffer, "FrameBuffer is null in Edit Layer");
-        auto uiTextureID = spFrameBuffer->GetColorAttachmentRendererID();
-        ImGui::Image((ImTextureID)(intptr_t)uiTextureID, m_vec2RenderViewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-            {
-                const wchar_t* path = (const wchar_t*)payload->Data;
-                OpenScene(path);
-            }
-            ImGui::EndDragDropTarget();
-        }
-        
-
-        //uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-        //ImGui::Image((ImTextureID)((intptr_t)(textureID)), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 0 }, ImVec2{ 1, 1 });
-        
-
-        ImGui::End();
-        
-
     }
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
     {
@@ -275,22 +284,22 @@ namespace NV
             }
             break;
         }
-        case Key::O:
-        {
-            if (bControl)
-            {
-                OpenScene();
-            }
-            break;
-        }
-        case Key::S:
-        {
-            if (bControl)
-            {
-                bShift ? SaveSceneAs() : SaveScene();
-            }
-            break;
-        }
+        // case Key::O:
+        // {
+        //     if (bControl)
+        //     {
+        //         OpenScene();
+        //     }
+        //     break;
+        // }
+        // case Key::S:
+        // {
+        //     if (bControl)
+        //     {
+        //         bShift ? SaveSceneAs() : SaveScene();
+        //     }
+        //     break;
+        // }
         case Key::D:
         {
             if (bControl)
@@ -510,7 +519,7 @@ namespace NV
         }
     }
 
-/*
+
     void EditorLayer::UIToolbar()
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
@@ -539,8 +548,8 @@ namespace NV
         {
             auto spIconTexture = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate)
                 ? m_IconPlay : m_IconStop;
-            if (ImGui::ImageButton((ImTextureID)(uint64_t)(spIconTexture->GetRendererID()), ImVec2(size, size),
-                ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
+            if (ImGui::ImageButton("PlayButton", (ImTextureID)(spIconTexture->GetRendererID()), ImVec2(size, size),
+                ImVec2(0, 0), ImVec2(1, 1),  ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
             {
                 switch (m_SceneState)
                 {
@@ -570,8 +579,8 @@ namespace NV
             {
                 auto spIconTexture = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play)
                     ? m_IcomSimulate : m_IconStop;
-                if (ImGui::ImageButton((ImTextureID)(uint64_t)(spIconTexture->GetRendererID()), ImVec2(size, size),
-                    ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
+                if (ImGui::ImageButton("SimulateButton", (ImTextureID)(spIconTexture->GetRendererID()), ImVec2(size, size),
+                    ImVec2(0, 0), ImVec2(1, 1),  ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
                 {
                     switch (m_SceneState)
                     {
@@ -593,7 +602,7 @@ namespace NV
             }
         }
 
-        if (bPause)
+       /*if (bPause)
         {
             bool bIsPaused = m_ActiveScene->GetPaused();
             ImGui::SameLine();
@@ -615,10 +624,10 @@ namespace NV
                     }
                 }
             }
-        }
+        }*/
 
         ImGui::PopStyleVar(2);
         ImGui::PopStyleColor(3);
         ImGui::End();
-    }*/
+    }
 }

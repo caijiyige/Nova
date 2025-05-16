@@ -37,7 +37,7 @@ namespace NV
         //io.ConfigFlags |= ImGuiConfigFlags_NoMouse; // Disable Mouse
         //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange; // Disable Mouse Cursor Change
 
-        io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Light.ttf", 16.0f);
+        io.Fonts->AddFontFromFileTTF("F:/LearnGameEngine/Nova/Novar/assert/fonts/opensans/OpenSans-Light.ttf", 16.0f);
 
         ImGui::StyleColorsDark();
 
@@ -67,12 +67,6 @@ namespace NV
         ImGui::DestroyContext();
     }
 
-    // void ImguiLayer::OnImGuiRender()
-    // {
-    //    // static bool show = true;
-    //    // ImGui::ShowDemoWindow(&show);
-      
-    // }
 
     void ImguiLayer::OnUpdate(Timestep ts)
     {
@@ -82,15 +76,7 @@ namespace NV
 
     void ImguiLayer::OnEvent(Event &e)
     {
-        /*
-        if (m_BlockEvent)
-        {
-            ImGuiIO& io = ImGui::GetIO();
-            if (e.IsInCategory(EventCategory::Mouse) || io.WantCaptureMouse)
-                e.m_Handled = true;
-            if (e.IsInCategory(EventCategory::Keyboard) || io.WantCaptureKeyboard)
-                e.m_Handled = true;
-        }*/
+       e.m_Handled = m_BlockEvent;
         
     }
 
@@ -107,10 +93,6 @@ namespace NV
     {
         //NV_PROFILE_FUNCTION();
         ImGuiIO& io = ImGui::GetIO();
-        Application& app = Application::Get();
-        io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
-        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        glViewport(0, 0, app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

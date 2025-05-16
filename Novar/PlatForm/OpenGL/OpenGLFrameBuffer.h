@@ -15,7 +15,7 @@ namespace NV
             virtual void UnBind() override;
 
             virtual int ReadPixelInt(uint32_t attachmentIndex, int x, int y) override;
-            virtual void Resize(float x,float y) override;
+            virtual void Resize(uint32_t width, uint32_t height) override;
 
             virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
 

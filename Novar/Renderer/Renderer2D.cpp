@@ -5,6 +5,7 @@
 #include "Novar/Renderer/RendererCommand.h"
 #include "Novar/PlatForm/OpenGL/OpenGLShader.h"
 #include "Novar/Debug/Instrumentor.h"
+#include "Renderer2D.h"
 
 namespace NV
 {
@@ -62,7 +63,8 @@ namespace NV
             {NV::ShaderDataType::Float4, "a_Color"   ,false},
             {NV::ShaderDataType::Float2, "a_TexCoord",false},
             {NV::ShaderDataType::Float , "a_TexIndex",false},
-            {NV::ShaderDataType::Float , "a_Tiling"  ,false}
+            {NV::ShaderDataType::Float , "a_Tiling"  ,false},
+            {NV::ShaderDataType::Int   , "a_EntityId",false}
             }
         );
         s_Data.QuardVertexArray->AddVertexBuffer(s_Data.QuardVertexBuffer);
@@ -102,7 +104,7 @@ namespace NV
         for (int i = 0; i < s_Data.MaxTextureSlots; i++)
             samplers[i] = i;
     
-        s_Data.TextureShader = Shader::Create("assert/shaders/texture.glsl");
+        s_Data.TextureShader = Shader::Create("F:/LearnGameEngine/Nova/Novar/assert/shaders/texture.glsl");
         s_Data.TextureShader->Bind();
         s_Data.TextureShader->SetUniform1iv(std::string("u_Textures"), samplers, static_cast<uint32_t>(s_Data.MaxTextureSlots));
 
@@ -119,19 +121,15 @@ namespace NV
 
     void Renderer2D::ShutDown()
     {
-        
+        delete[] s_Data.QuardVertexBufferBase;
     }
 
-    void Renderer2D::BeginScene(const Camera &camera, const glm::mat4 &transform)
+    void Renderer2D::BeginScene(const std::shared_ptr<Camera>& camera, const glm::mat4 &transform)
     {
         s_Data.TextureShader->Bind();
-        glm::mat4 viewProjectionMatrix = camera.GetProjectionMatrix() * transform;
+        glm::mat4 viewProjectionMatrix = camera->GetProjectionMatrix() * transform;
         s_Data.TextureShader->SetUniformMat4f("u_ViewProjection",viewProjectionMatrix);
-
-        s_Data.QuardIndexCount = 0;
-        s_Data.QuardVertexBufferPtr = s_Data.QuardVertexBufferBase;
-
-        s_Data.TextureSlotIndex = 1;
+        StartBatch();
     }
 
     void Renderer2D::BeginScene(OrthographicCamera& camera)
@@ -139,33 +137,20 @@ namespace NV
             
         s_Data.TextureShader->Bind();
         s_Data.TextureShader->SetUniformMat4f("u_ViewProjection",camera.GetViewProjectionMatrix());
-
-
-        s_Data.QuardIndexCount = 0;
-        s_Data.QuardVertexBufferPtr = s_Data.QuardVertexBufferBase;
-
-        s_Data.TextureSlotIndex = 1;
-
+        StartBatch();
     }
 
-    void Renderer2D::BeginScene(std::shared_ptr<Camera> &camera)
+    void Renderer2D::BeginScene(const std::shared_ptr<EditorCamera> &camera)
     {
-        glm::mat4 viewProjectionMatrix = camera->GetProjectionMatrix();
+        glm::mat4 viewProjectionMatrix = camera->GetViewProjection();
         s_Data.TextureShader->Bind();
         s_Data.TextureShader->SetUniformMat4f("u_ViewProjection",viewProjectionMatrix);
-        s_Data.QuardIndexCount = 0;
-        s_Data.QuardVertexBufferPtr = s_Data.QuardVertexBufferBase;
-        s_Data.TextureSlotIndex = 1;
-
+        StartBatch();
     }
 
     void Renderer2D::EndScene()
     {
-        uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuardVertexBufferPtr - (uint8_t*)s_Data.QuardVertexBufferBase);
-        s_Data.QuardVertexBuffer->SetData(s_Data.QuardVertexBufferBase,dataSize);
-
         Flush();
-        
     }
 
     void Renderer2D::StartBatch()
@@ -197,6 +182,20 @@ namespace NV
     
         RendererCommand::DrawIndexed(s_Data.QuardVertexArray,s_Data.QuardIndexCount);
         s_Data.Stats.DrawCalls++;
+
+        if (s_Data.QuardIndexCount)
+		{
+			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuardVertexBufferPtr - (uint8_t*)s_Data.QuardVertexBufferBase);
+			s_Data.QuardVertexBuffer->SetData(s_Data.QuardVertexBufferBase, dataSize);
+
+			// Bind textures
+			for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
+				s_Data.TextureSlots[i]->Bind(i);
+
+			s_Data.TextureShader->Bind();
+			RendererCommand::DrawIndexed(s_Data.QuardVertexArray, s_Data.QuardIndexCount);
+			s_Data.Stats.DrawCalls++;
+		}
         
     }
 
@@ -242,8 +241,15 @@ namespace NV
 		s_Data.Stats.QuardCount++;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
-	{
+    void Renderer2D::DrawSprite(const glm::mat4 &transform, SpriteRendererComponent &src, int entityID)
+    {
+        if (src.Texture)
+			DrawQuad(transform, src.Texture, src.Tiling, src.Color, entityID);
+		else
+			DrawQuad(transform, src.Color, entityID);
+    }
+    void Renderer2D::DrawQuad(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, float tilingFactor, const glm::vec4 &tintColor, int entityID)
+    {
 		NV_PROFILE_FUNCTION();
 
 		constexpr size_t quadVertexCount = 4;
