@@ -1,5 +1,6 @@
 #pragma once
 #include "Novar/Renderer/FrameBuffer.h"
+#include "Novar/Core/Base.h"
 namespace NV
 {
  
@@ -15,19 +16,22 @@ namespace NV
             virtual void UnBind() override;
 
             virtual int ReadPixelInt(uint32_t attachmentIndex, int x, int y) override;
+
+            virtual void ReadPixelColor() override;
             virtual void Resize(uint32_t width, uint32_t height) override;
 
             virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
 
             void Invalidate() ;
-            virtual uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
+            virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override {  return m_ColorAttachments.at(index); }
             virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
         private:
             uint32_t m_FrameBufferID = 0;
-            uint32_t m_ColorAttachment = 0;
+            
             uint32_t m_DepthAttachment = 0;
-            std::vector<uint32_t> m_ColorAttachments;
+
             FrameBufferSpecification m_Specification;
+            std::vector<uint32_t> m_ColorAttachments;
 
             std::vector<FrameBufferTextureSpecification> m_ColorAttachmentsSpecification;
 

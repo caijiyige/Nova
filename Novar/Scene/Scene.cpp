@@ -16,7 +16,7 @@
 namespace NV
 {
 	template<typename... Component>
-    static void CopyComponent(std::shared_ptr<entt::registry>& src, std::shared_ptr<entt::registry>& dst, const std::unordered_map<UUID,std::shared_ptr<Entity>>& entityMap)
+    static void CopyComponent(std::shared_ptr<entt::registry>& dst, std::shared_ptr<entt::registry>& src, const std::unordered_map<UUID,std::shared_ptr<Entity>>& entityMap)
     {
         ([&]()
 		{
@@ -35,25 +35,25 @@ namespace NV
     template<typename... Component>
 	static void CopyComponent(ComponentGroup<Component...>, std::shared_ptr<entt::registry>& dst, std::shared_ptr<entt::registry>& src, const std::unordered_map<UUID, std::shared_ptr<Entity>>& enttMap)
 	{
-		CopyComponent<Component...>(src, dst, enttMap);
+		CopyComponent<Component...>(dst, src, enttMap);
 	}
-/*
+
 	template<typename... Component>
-	static void CopyComponentIfExists(Entity dst, Entity src)
+	static void CopyComponentIfExists(std::shared_ptr<Entity>& dst, std::shared_ptr<Entity>& src)
 	{
 		([&]()
 		{
-			if (src.HasComponent<Component>())
-				dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+			if (src->HasComponent<Component>())
+				dst->AddOrReplaceComponent<Component>(src->GetComponent<Component>());
 		}(), ...);
 	}
 
 	template<typename... Component>
-	static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
+	static void CopyComponentIfExists(ComponentGroup<Component...>, std::shared_ptr<Entity>& dst, std::shared_ptr<Entity>& src)
 	{
 		CopyComponentIfExists<Component...>(dst, src);
 	}
-*/
+
     
     std::shared_ptr<Scene> Scene::CopyScene(const std::shared_ptr<Scene> &scene)
     {
@@ -172,31 +172,83 @@ namespace NV
 
     void Scene::OnShowPhysicsCollider(const std::shared_ptr<Camera> &spCamera)
     {
+        Renderer2D::BeginScene(spCamera);
+        
+        {
+            auto view = m_spRegistry->view<TransformComponent, BoxCollider2DComponent>();
+            for (auto entity : view)
+            {
+                const auto [tc, bc2d] = view.get<TransformComponent, BoxCollider2DComponent>(entity);
+
+                                                                             
+        
+                glm::vec3 translation = tc.Translation + glm::vec3(bc2d.Offset, 0.001f);
+                glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size * 2.0f, 1.0f);
+
+                glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
+                    * glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+                    * glm::scale(glm::mat4(1.0f), scale);
+
+               Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1),(int)entity);
+            }
+        }
+        Renderer2D::EndScene();
     }
 
-    // std::shared_ptr<Entity> Scene::DuplicateEntity(Entity entity)
-    // {
-    //     Entity newEntity = CreateEntity(entity.GetName());
-        
-
-    //     CopyComponentIfExists(AllComponents{}, newEntity, entity);
-	// 	return newEntity;
-    // }
+    std::shared_ptr<Entity> Scene::DuplicateEntity(std::shared_ptr<Entity>& entity)
+    {
+        auto newEntity = CreateEntity(entity->GetName());
+        CopyComponentIfExists(AllComponents{}, newEntity, entity);
+		return newEntity;
+    }
 
    
     void Scene::OnUpdateEditor(Timestep ts,const std::shared_ptr<EditorCamera>& camera)
 	{
-        
         RenderScene(camera);
 	}
+
+    void Scene::OnUpdateSimulation(Timestep ts, std::shared_ptr<EditorCamera> &camera)
+    {
+        if (!m_IsPaused || m_StepFrames-- > 0)
+		{
+			// Physics
+			{
+			    m_spPhysics2D->OnUpdate(ts);
+
+			    auto components = m_spRegistry->view<Rigidbody2DComponent>();
+                for (auto component : components)
+                {
+                    auto spEntity = CreateRef<Entity>(m_spRegistry, component);
+                    auto& transform = spEntity->GetComponent<TransformComponent>();
+                    auto& rigidBody2D = spEntity->GetComponent<Rigidbody2DComponent>();
+
+                    m_spPhysics2D->UpdateSystem(rigidBody2D, transform);
+                }
+		    }
+		}
+        RenderScene(camera);
+
+    }
+
     void Scene::OnUpdateRuntime(Timestep ts)
     {
         if (!m_IsPaused || m_StepFrames-- > 0)
 		{
 			// Physics
 			{
-			
-			}
+			    m_spPhysics2D->OnUpdate(ts);
+
+			    auto components = m_spRegistry->view<Rigidbody2DComponent>();
+                for (auto component : components)
+                {
+                    auto spEntity = CreateRef<Entity>(m_spRegistry, component);
+                    auto& transform = spEntity->GetComponent<TransformComponent>();
+                    auto& rigidBody2D = spEntity->GetComponent<Rigidbody2DComponent>();
+
+                    m_spPhysics2D->UpdateSystem(rigidBody2D, transform);
+                }
+		    }
 		}
 
 		// Render 2D
@@ -275,8 +327,8 @@ namespace NV
                 auto& boxCollider2D = spEntity->GetComponent<BoxCollider2DComponent>();
                 m_spPhysics2D->CreatePolygonShape(boxCollider2D, transform);
             }
-            /*
-            if (spEntity->HasComponent<CircleCollider2DComponent>())
+            
+            /*if (spEntity->HasComponent<CircleCollider2DComponent>())
             {
                 auto& circleCollider2D = spEntity->GetComponent<CircleCollider2DComponent>();
 
@@ -292,7 +344,7 @@ namespace NV
 
     void Scene::OnUpdatePhysics2D(Timestep ts)
     {
-
+        m_spPhysics2D->OnUpdate(ts);       
     }
 
     void Scene::RenderScene(const std::shared_ptr<Camera> &camera)

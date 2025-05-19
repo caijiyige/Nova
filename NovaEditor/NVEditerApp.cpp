@@ -8,8 +8,8 @@ namespace NV
     private:
         /* data */
     public:
-        NVEditorApp ()
-        : Application("Nova Editor")
+        NVEditorApp (const ApplicationSpecification& spec)
+        : Application(spec)
         {
             
         // PushLayer(new ExampleLayer());
@@ -25,9 +25,14 @@ namespace NV
 
 
     // To be defined in CLIENT
-    NV::Application* CreateApplication()
-    {
-        return new NVEditorApp();
-    }
+
+    Application* CreateApplication(ApplicationCommandLineArgs args)
+	{
+		ApplicationSpecification spec;
+		spec.Name = "Nova engine";
+		spec.CommandLineArgs = args;
+
+		return new NVEditorApp(spec);
+	}
 
 }

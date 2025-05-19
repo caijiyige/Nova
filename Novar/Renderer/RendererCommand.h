@@ -30,9 +30,19 @@ namespace NV{
             {
                 s_RendererAPI->DrawIndexd(vertexArray,indexCount);
             }
+            inline static void DrawLine(const std::shared_ptr<VertexArray>& vertexArray,uint32_t indexCount = 0)
+            {
+                s_RendererAPI->DrawLine(vertexArray,indexCount);
+            }
+            inline static void SetLineWidth(float width)
+            {
+                s_RendererAPI->SetLineWidth(width);
+            }
+
+
         
         private:
-            static RendererAPI* s_RendererAPI;
+            static std::unique_ptr<RendererAPI> s_RendererAPI;
     };
 
 

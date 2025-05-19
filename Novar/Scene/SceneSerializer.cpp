@@ -7,6 +7,7 @@
 #include "Novar/Core/UUID.h"
 
 #include <yaml-cpp/yaml.h>
+#include "SceneSerializer.h"
 namespace YAML {
 
 	/// Custom YAML conversion for glm::vec2, glm::vec3, glm::vec4, and UUID

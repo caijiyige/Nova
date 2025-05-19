@@ -18,6 +18,8 @@ namespace NV
 
 		void OnUpdate(const Timestep& timeStep);
 		void UpdateSystem(Rigidbody2DComponent& rigidBody2D, TransformComponent& transform);
+
+		
 	private:
 		b2WorldId m_spPhysicsWorldId;
 		b2BodyId* m_pBody;//实体

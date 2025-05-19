@@ -32,4 +32,20 @@ namespace NV
         }
         return nullptr;
     }
+
+    std::shared_ptr<Texture2D> Texture2D::Create(const TextureSpecification& specification)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None:    
+                NV_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); 
+                return nullptr;
+			case RendererAPI::API::OpenGL:  
+                return std::make_shared<OpenGLTexture2D>(specification);
+		}
+
+		NV_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
+
 }

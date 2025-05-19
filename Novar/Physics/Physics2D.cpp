@@ -63,7 +63,7 @@ namespace NV
 		shapeDef.material.friction = boxCollider2D.Friction;
 		shapeDef.material.restitution = boxCollider2D.Restitution;
 
-		b2Polygon box = b2MakeBox(boxCollider2D.Size.x, boxCollider2D.Size.y);
+		b2Polygon box = b2MakeBox(transform.Scale.x * boxCollider2D.Size.x, transform.Scale.y * boxCollider2D.Size.y);
 		b2CreatePolygonShape(boxid, &shapeDef, &box);
 	}
 

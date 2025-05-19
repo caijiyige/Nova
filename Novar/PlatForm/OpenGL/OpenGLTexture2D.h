@@ -1,6 +1,6 @@
 #pragma once
 #include "Novar/Renderer/Texture.h"
-
+#include <glad.h>
 namespace NV
 {
     class OpenGLTexture2D : public Texture2D
@@ -9,8 +9,10 @@ namespace NV
         public:
             OpenGLTexture2D(const std::string& path);
             OpenGLTexture2D(const uint32_t width,const uint32_t height);
+            OpenGLTexture2D(const TextureSpecification& specification);
             virtual ~OpenGLTexture2D();
-
+            
+            virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
             virtual unsigned int GetWidth() const override { return m_Width;}
             virtual unsigned int GetHeight() const override { return m_Height;}
 
@@ -29,11 +31,14 @@ namespace NV
                 return m_RedererID == ((OpenGLTexture2D&)other).m_RedererID;
             }
         private:
+            TextureSpecification m_Specification;
 
             std::string m_Path;
             bool m_IsLoaded = false;
             unsigned int m_Width;
             unsigned int m_Height;
             unsigned int m_RedererID;
+		    GLenum m_InternalFormat, m_DataFormat;
+
     };
 }

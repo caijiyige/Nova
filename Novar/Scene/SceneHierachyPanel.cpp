@@ -158,7 +158,7 @@ namespace NV
         
 
     template<typename T, typename UIFounction>
-    static void DrawComponent(const std::string& label,std::shared_ptr<Entity> entity , UIFounction drawFunction)
+    static void DrawComponent(const std::string& label,const std::shared_ptr<Entity> entity , UIFounction drawFunction)
     {
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
         if (entity->HasComponent<T>())
@@ -319,8 +319,8 @@ namespace NV
 
         DrawComponent<SpriteRendererComponent>("Sprite Render", entity, [](auto& component)
             {
-                auto& spQuadPrimitive = component;
-                ImGui::ColorEdit4("Color", glm::value_ptr(spQuadPrimitive.Color));
+                //auto& spQuadPrimitive = component;
+                ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
                 ImGui::Button("Texture", ImVec2(100.f, 0.0f));
                 if (ImGui::BeginDragDropTarget())
                 {
@@ -334,11 +334,19 @@ namespace NV
                             component.Texture = texture;
                         }
                         
+                        
                     }
                     ImGui::EndDragDropTarget();
                 }
+                // else
+                // {
+                //         std::shared_ptr<Texture2D> texture = Texture2D::Create(TextureSpecification());
+                //         uint32_t whiteTextureData = 0xffffffff;
+                //         texture->SetData(&whiteTextureData,sizeof(uint32_t));
+                //         component.Texture = texture;
+                // }
 
-                ImGui::DragFloat("Tiling Facto", &spQuadPrimitive.Tiling, 0.1f, 0.f, 10.f);
+                ImGui::DragFloat("Tiling Facto", &component.Tiling, 0.1f, 0.0f, 10.f);
             });
 
         DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto& component)
@@ -375,7 +383,7 @@ namespace NV
        
     }
 
-
+   
     template<typename T>
     void SceneHierachyPanel::DisplayAddComponentEntry(const std::string& entryName)
     {

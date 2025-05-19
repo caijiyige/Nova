@@ -1,5 +1,5 @@
 #pragma once
-#include "Novar/PCH.h"
+
 #include <glm/glm.hpp>
 #include "Novar/Renderer/VertexArray.h"
 
@@ -23,8 +23,13 @@ namespace NV
         virtual void SetClearColor(const glm::vec4& color) = 0;
 
         virtual void DrawIndexd(const std::shared_ptr<VertexArray>& vertexArray ,unsigned int indexCount = 0) = 0;
+        virtual void DrawLine(const std::shared_ptr<VertexArray>& vertexArray ,unsigned int indexCount = 0) = 0;
+
+        virtual void SetLineWidth(float width) = 0 ;
 
         inline static API GetAPI(){return s_API;}
+
+        static std::unique_ptr<RendererAPI> Create();
 
         private:
 

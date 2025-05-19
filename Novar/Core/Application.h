@@ -12,10 +12,29 @@
 
 namespace NV
 {
+    struct ApplicationCommandLineArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			NV_CORE_ASSERT(index < Count);
+			return Args[index];
+		}
+	};
+
+	struct ApplicationSpecification
+	{
+		std::string Name = "NOVA Application";
+		std::string WorkingDirectory;
+		ApplicationCommandLineArgs CommandLineArgs;
+	};
+
     class NOVA_API Application
     {
     public:
-        Application(const std::string& name = "Nova Engine");
+        Application(const ApplicationSpecification& specification);
         virtual ~Application();
         void Run();
         void OnEvent(Event& e);
@@ -30,12 +49,16 @@ namespace NV
 
         ImguiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
+        const ApplicationSpecification& GetSpecification() const { return m_Specification; }
+
+
         void BlockEvents(bool bBlock);
 
     private:
         bool OnWindowClose(WindowCloseEvent& e);
         bool OnWindowResize(WindowResizeEvent& e);
        
+        ApplicationSpecification m_Specification;
         bool m_Running = true;
         bool m_IsMinisize = false;
         float m_LastFrameTime = 0.0f;
@@ -51,5 +74,6 @@ namespace NV
     };
 
     // To be defined in CLIENT
-    Application* CreateApplication();
+    
+    Application* CreateApplication(ApplicationCommandLineArgs args);
 }

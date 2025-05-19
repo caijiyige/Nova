@@ -41,7 +41,7 @@ namespace NV
             const std::shared_ptr<entt::registry>& GetRegistry() const { return m_spRegistry; }
             std::shared_ptr<entt::registry>& GetRegistry() { return m_spRegistry; }
 
-            Entity DuplicateEntity(Entity entity);
+            std::shared_ptr<Entity> DuplicateEntity(std::shared_ptr<Entity>& entity);
 
             std::shared_ptr<Entity> GetPrimaryCameraEntity();
             std::shared_ptr<Entity> GetEntityByUUID(UUID uuid);

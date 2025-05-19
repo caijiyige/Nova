@@ -6,7 +6,7 @@ file(GLOB IMGUI_SOURCES ${PROJECT_SOURCE_DIR}/Novar/Imgui/*.cpp)
 file(GLOB RENDERER_SOURCES ${PROJECT_SOURCE_DIR}/Novar/Renderer/*.cpp)
 file(GLOB SCENE_SOURCES ${PROJECT_SOURCE_DIR}/Novar/Scene/*.cpp)
 file(GLOB GUI_SOURCES ${PROJECT_SOURCE_DIR}/Novar/vendor/imgui/*.cpp)
-
+file(GLOB PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/Novar/Project/*.cpp)
 file(GLOB PHYSICS_SOURCES ${PROJECT_SOURCE_DIR}/Novar/Physics/*.cpp)
 
 
@@ -17,7 +17,7 @@ link_directories(${PROJECT_SOURCE_DIR}/Novar/bin)
 
 add_compile_options(-w)
 
-add_library(test OBJECT ${CORE_SOURCES} ${IMGUI_SOURCES} ${GUI_SOURCES} ${RENDERER_SOURCES} ${PHYSICS_SOURCES}  ${SCENE_SOURCES} ${PROJECT_SOURCE_DIR}/Novar/vendor/stb_image/stb_image.cpp ${PLAT_OPENGL_SOURCES} ${PLAT_WINDOWS_SOURCES})
+add_library(test OBJECT ${CORE_SOURCES} ${IMGUI_SOURCES} ${GUI_SOURCES} ${RENDERER_SOURCES} ${PHYSICS_SOURCES}  ${SCENE_SOURCES} ${PROJECT_SOURCES} ${PROJECT_SOURCE_DIR}/Novar/vendor/stb_image/stb_image.cpp ${PLAT_OPENGL_SOURCES} ${PLAT_WINDOWS_SOURCES})
 target_link_libraries(test PUBLIC glad yaml-cpp libglfw3.a opengl32.lib libbox2d.a)
 
 target_precompile_headers(test PRIVATE PCH.h)

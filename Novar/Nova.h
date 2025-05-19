@@ -15,6 +15,10 @@
 #include "Novar/Debug/Instrumentor.h"
 
 #include "Novar/Imgui/ImguiLayer.h"
+//project
+
+#include "Novar/Project/Project.h"
+#include "Novar/Project/ProjectSerializer.h"
 
 
 //Scene
@@ -23,6 +27,7 @@
 #include "Novar/Scene/Entity.h"
 #include "Novar/Scene/ScriptableEntity.h"
 #include "Novar/Scene/SceneHierachyPanel.h"
+#include "Novar/Scene/ContentBrowserPanel.h"
 #include "Novar/Scene/SceneSerializer.h"
 
 //////////Event
@@ -43,6 +48,9 @@
 #include "Novar/Renderer/Texture.h"
 #include "Novar/Renderer/OrthographicCamera.h"
 #include "Novar/Renderer/OrthographicCameraControl.h"
+
+//////////////
+#include "Novar/Utils/PlatformUtils.h"
 
 
 /////////EntryPoint

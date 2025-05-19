@@ -1,8 +1,6 @@
 #include "NovaEditor/EditorLayer.h"
 
-#include <imgui.h>
 #include <glm/ext.hpp>
-
 namespace NV
 {
     EditorLayer::EditorLayer()
@@ -15,17 +13,34 @@ namespace NV
         m_EditorScene = std::make_shared<Scene>();
         //创建场景层级面板
         m_SceneHierarchyPanel = std::make_shared<SceneHierachyPanel>(m_EditorScene);
+
         //创建场景序列化器
         m_SceneSerializer = std::make_shared<SceneSerializer>(m_EditorScene);
 
         //创建帧缓冲
+        //纹理规范数组
+        // std::vector<FrameBufferTextureSpecification> vecFrameBufferTextureSpecification =
+        // {
+        //     FrameBufferTextureFormat::RGBA8,
+        //     FrameBufferTextureFormat::RED_INTEGER,
+        //     FrameBufferTextureFormat::DEPTH24STENCIL8
+        // };
+
+        //附件规范 列表初始化 
+        FrameBufferAttachmentSpecification frameBufferAttachmentSpecification{FrameBufferTextureFormat::RGBA8,
+            FrameBufferTextureFormat::RED_INTEGER,
+            FrameBufferTextureFormat::DEPTH24STENCIL8};
+        
+        //帧缓冲规范
         NV::FrameBufferSpecification spec;
         spec.Width = 1280;
         spec.Height = 720;
+        spec.AttachmentSpec = frameBufferAttachmentSpecification;
+
         m_FrameBuffer = FrameBuffer::Create(spec);
 
         //创建纹理
-        m_Texture2D = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/textures/Checkerboard.png");
+        
         m_IconPause = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/PauseButton.png");
         m_IconPlay = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/PlayButton.png");
         m_IconStep = Texture2D::Create("F:/LearnGameEngine/Nova/Novar/assert/icons/StepButton.png");
@@ -35,11 +50,26 @@ namespace NV
     }
     void EditorLayer::OnAttach()
     {
-        //创建实体
-        //m_CameraEntity = m_EditorScene->CreateEntity();
-        //实体添加组件
-        //m_CameraEntity->AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+        /*
+        auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
+		if (commandLineArgs.Count > 1)
+		{
+			auto projectFilePath = commandLineArgs[1];
+			OpenProject(projectFilePath);
+		}
+		else
+		{
+			// TODO(Yan): prompt the user to select a directory
+			// NewProject();
 
+			// If no project is opened, close Hazelnut
+			// NOTE: this is while we don't have a new project path
+			//if (!OpenProject())
+				//Application::Get().Close();
+            OpenProject();
+
+
+		}*/
 
     }
 
@@ -61,14 +91,15 @@ namespace NV
             }
             
             //Prepare Renderer
-            {
-                Renderer2D::ResetStats();
-                m_FrameBuffer->Bind();
-                RendererCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1.0});
-                RendererCommand::Clear();
-
-            }
             
+            Renderer2D::ResetStats();
+            m_FrameBuffer->Bind();
+            RendererCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1.0});
+            RendererCommand::Clear();
+
+            m_FrameBuffer->ClearAttachment(1, -1);
+            
+            m_FrameBuffer->ReadPixelColor();
             //Scene State
 
             switch (m_SceneState)
@@ -94,6 +125,19 @@ namespace NV
             //mouse pick
 
             {
+                auto[mx, my] = ImGui::GetMousePos();
+                mx -= m_vec2RenderViewPortBounds[0].x;
+                my -= m_vec2RenderViewPortBounds[0].y;
+                my = m_vec2RenderViewPortSize.y - my;
+                int mouseX = (int)mx;
+                int mouseY = (int)my;
+
+                if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)m_vec2RenderViewPortSize.x && mouseY < (int)m_vec2RenderViewPortSize.y)
+                {
+                    int pixelData = m_FrameBuffer->ReadPixelInt(1, mouseX, mouseY);
+                    NV_INFO("mousex {0}  {1} pixelData {2}",mouseX, mouseY,pixelData);
+                    //m_HoveredEntity = pixelData == -1 ? Entity() : Entity(m_ActiveScene->GetRegistry(), (entt::entity)pixelData);
+                }
 
             }
 
@@ -177,40 +221,44 @@ namespace NV
             if (ImGui::BeginMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
-                {
-                    if (ImGui::MenuItem("New", "Ctrl+O"))
-                    {
-                        NewScene();
-                    }
-                    // if (ImGui::MenuItem("Open...","Ctrl+O"))
-                    // {
-                    //     OpenScene();
-                    // }
-                    /*if (ImGui::MenuItem("Save As...","Ctrl+Shift+S"))
-                    {
-                        SaveSceneAs();
-                    }*/
-                    if (ImGui::MenuItem("Exit"))
-                    { 
-                        Application::Get().Close();; 
-                    }
-                    ImGui::EndMenu();
-                }
+			{
+				if (ImGui::MenuItem("Open Project...", "Ctrl+O"))
+					OpenScene();
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+					NewScene();
+
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+					SaveScene();
+
+				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
+					SaveSceneAs();
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Exit"))
+					Application::Get().Close();
+				
+				ImGui::EndMenu();
+			}
                     
                 ImGui::EndMenuBar();
             }
             
             {
                 m_SceneHierarchyPanel->OnImGuiRender(); 
+                //m_ContentBrowserPanel->OnImGuiRender();
             }
 
             {
                 ImGui::Begin("Status");
-                ImGui::Text("QuardCount: %d",NV::Renderer2D::GetStats().GetQuardCount());
+                ImGui::Text("QuardCount: %d",NV::Renderer2D::GetStats().GetQuadCount());
                 ImGui::Text("DrawCalls: %d",NV::Renderer2D::GetStats().GetDrawCalls());
                 ImGui::Text("TotalVertexCount: %d",NV::Renderer2D::GetStats().GetTotalVertexCount());
                 ImGui::Text("TotalIndexCount: %d",NV::Renderer2D::GetStats().GetTotalIndexCount());
-                ImGui::Text("QuardIndexCount: %d",NV::Renderer2D::GetStats().GetQuardCount() * 6);
+                ImGui::Text("QuardIndexCount: %d",NV::Renderer2D::GetStats().GetQuadCount() * 6);
                 ImGui::End();
             }
             {
@@ -225,6 +273,7 @@ namespace NV
             }
             
             {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
                 ImGui::Begin("viewport");
 
                 ImVec2 vec2MinRegion = ImGui::GetWindowContentRegionMin();
@@ -241,6 +290,8 @@ namespace NV
                 auto spFrameBuffer = std::dynamic_pointer_cast<FrameBuffer>(m_FrameBuffer);
                 NV_ASSERT(spFrameBuffer, "FrameBuffer is null in Edit Layer");
                 auto uiTextureID = spFrameBuffer->GetColorAttachmentRendererID();
+		        //ImGui::Image(reinterpret_cast<void*>(uiTextureID),  m_vec2RenderViewPortSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
                 ImGui::Image((ImTextureID)(intptr_t)uiTextureID, m_vec2RenderViewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 
                 if (ImGui::BeginDragDropTarget())
@@ -254,12 +305,9 @@ namespace NV
                 }
                 ImGui::End();
             }
-
+            ImGui::PopStyleVar();
             
 
-            //uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-            //ImGui::Image((ImTextureID)((intptr_t)(textureID)), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 0 }, ImVec2{ 1, 1 });
-            
             UIToolbar();
         }
         ImGui::End();
@@ -284,22 +332,22 @@ namespace NV
             }
             break;
         }
-        // case Key::O:
-        // {
-        //     if (bControl)
-        //     {
-        //         OpenScene();
-        //     }
-        //     break;
-        // }
-        // case Key::S:
-        // {
-        //     if (bControl)
-        //     {
-        //         bShift ? SaveSceneAs() : SaveScene();
-        //     }
-        //     break;
-        // }
+        case Key::O:
+        {
+            if (bControl)
+            {
+                OpenScene();
+            }
+            break;
+        }
+        case Key::S:
+        {
+            if (bControl)
+            {
+                bShift ? SaveSceneAs() : SaveScene();
+            }
+            break;
+        }
         case Key::D:
         {
             if (bControl)
@@ -347,22 +395,22 @@ namespace NV
     }
     void EditorLayer::NewScene()
     {
-        m_EditorScene = std::make_shared<Scene>();
-        m_EditorScene->OnViewportResize(m_vec2RenderViewPortSize.x, m_vec2RenderViewPortSize.y);
-        m_SceneHierarchyPanel->SetContext(m_EditorScene);
+        m_ActiveScene = std::make_shared<Scene>();
+        m_ActiveScene->OnViewportResize(m_vec2RenderViewPortSize.x, m_vec2RenderViewPortSize.y);
+        m_SceneHierarchyPanel->SetContext(m_ActiveScene);
 
         m_EditorScenePath = std::filesystem::path();
     }
-/*
+
     void EditorLayer::OpenScene()
     {
-        auto sFilePath = FileSystem::OpenFile("SandTable Scene (*.scene)\0*.scene\0");
+        auto sFilePath = FileDialog::OpenFile("Nova Scene (*.scene)\0*.scene\0");
         if (!sFilePath.empty())
         {
             OpenScene(sFilePath);
         }
     }
-*/
+
     void EditorLayer::OpenScene(const std::filesystem::path& path)
     {
         if (m_SceneState != SceneState::Edit)
@@ -377,20 +425,20 @@ namespace NV
         }
 
         NewScene();
-        //m_SceneSerializer->SetContext(m_EditorScene);
+        m_SceneHierarchyPanel->SetContext(m_EditorScene);
         m_SceneSerializer->Deserialize(path.string());
         m_EditorScenePath = path;
     }
 
-    /*void EditorLayer::SaveSceneAs()
-    {
-        auto sFilePath = FileSystem::SaveFile("SandTable Scene (*.scene)\0*.scene\0");
-        if (!sFilePath.empty())
+   void EditorLayer::SaveSceneAs()
         {
-            m_spSceneSerializer->Serialize(sFilePath);
-            m_sEditorScenePath = sFilePath;
+            auto sFilePath = FileDialog::SaveFile("Nova Scene (*.scene)\0*.scene\0");
+            if (!sFilePath.empty())
+            {
+                m_SceneSerializer->Serialize(sFilePath);
+                m_EditorScenePath = sFilePath;
+            }
         }
-    }*/
 
     void EditorLayer::SaveScene()
     {
@@ -400,29 +448,29 @@ namespace NV
         }
     }
 
-    /*void EditorLayer::OpenProject()
+    void EditorLayer::OpenProject()
     {
-        std::string filepath = FileSystem::OpenFile("Hazel Project (*.hproj)\0*.hproj\0");
+        std::string filepath = FileDialog::OpenFile("Hazel Project (*.hproj)\0*.hproj\0");
         OpenProject(filepath);
     }
 
     void EditorLayer::OpenProject(const std::filesystem::path& path)
     {
-        if (Project::Load(path))
+        /*if (Project::Load(path))
         {
-            ScriptEngine::Init();
+            //ScriptEngine::Init();
 
-            auto sStartScenePath = Project::GetProjectInstance()->GetAssetFileSystemPath
-            (Project::GetProjectInstance()->GetProjectConfig()->StartScene);
-            OpenScene(sStartScenePath);
-            m_spContentBrowserPanel = CreateRef<ContentBrowserPanel>();
-        }
+            auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
+			OpenScene(startScenePath);
+			m_ContentBrowserPanel = std::make_shared<ContentBrowserPanel>();
+        }*/
+       m_ContentBrowserPanel = std::make_shared<ContentBrowserPanel>();
     }
 
     void EditorLayer::SaveProject()
     {
-        //Project::SaveActive()
-    }*/
+        //Project::SaveActive();
+    }
 
     void EditorLayer::OnScenePlay()
     {
@@ -503,8 +551,9 @@ namespace NV
                 {
                     auto spCameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
                     auto spCamera = spCameraEntity->GetComponent<CameraComponent>();
-                    //auto cam = std::make_shared<>
-                    //m_ActiveScene->OnShowPhysicsCollider(spCamera.Camera);
+                    auto cam = std::make_shared<Camera>();
+                    cam.reset(&spCamera.Camera);
+                    m_ActiveScene->OnShowPhysicsCollider(cam);
                 }
                 break;
             }
@@ -602,13 +651,13 @@ namespace NV
             }
         }
 
-       /*if (bPause)
+       if (bPause)
         {
-            bool bIsPaused = m_ActiveScene->GetPaused();
+            bool bIsPaused = m_ActiveScene->IsPaused();
             ImGui::SameLine();
             {
-                if (ImGui::ImageButton((ImTextureID)(uint64_t)(m_IconPause->GetRendererID()), ImVec2(size, size),
-                    ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
+                if (ImGui::ImageButton("",(ImTextureID)(m_IconPause->GetRendererID()), ImVec2(size, size),
+                    ImVec2(0, 0), ImVec2(1, 1),  ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
                 {
                     m_ActiveScene->SetPaused(!bIsPaused);
                 }
@@ -617,14 +666,14 @@ namespace NV
             {
                 ImGui::SameLine();
                 {
-                    if (ImGui::ImageButton((ImTextureID)(uint64_t)(m_IconStep->GetRendererID()), ImVec2(size, size),
-                        ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
+                    if (ImGui::ImageButton("",(ImTextureID)(m_IconStep->GetRendererID()), ImVec2(size, size),
+                        ImVec2(0, 0), ImVec2(1, 1),  ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
                     {
                         m_ActiveScene->Step();
                     }
                 }
             }
-        }*/
+        }
 
         ImGui::PopStyleVar(2);
         ImGui::PopStyleColor(3);

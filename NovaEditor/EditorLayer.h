@@ -1,5 +1,5 @@
 #include "Novar/Nova.h"
-#include "imgui.h"
+#include <imgui.h>
 #include "Novar/Renderer/EditorCamera.h"
 #include <filesystem>
 namespace NV
@@ -8,7 +8,6 @@ namespace NV
 		{
 			Edit = 0, Play = 1, Simulate = 2, Pause = 3
 		};
-		
     class  EditorLayer : public Layer
     {
 
@@ -28,14 +27,14 @@ namespace NV
             bool OnMousePressed(MouseButtonPressedEvent& e);
 
             void NewScene();
-            //void OpenScene();
+            void OpenScene();
             void OpenScene(const std::filesystem::path& path);
-            //void SaveSceneAs();
+            void SaveSceneAs();
             void SaveScene();
 
             void OpenProject();
-            //void OpenProject(const std::filesystem::path& path);
-            //void SaveProject();
+            void OpenProject(const std::filesystem::path& path);
+            void SaveProject();
 
             void OnScenePlay();
             void OnSceneSimulate();
@@ -74,6 +73,7 @@ namespace NV
 
             std::shared_ptr<EditorCamera> m_EditorCamera;
             
+            std::shared_ptr<ContentBrowserPanel> m_ContentBrowserPanel;
             std::shared_ptr<SceneHierachyPanel> m_SceneHierarchyPanel;
             std::shared_ptr<SceneSerializer> m_SceneSerializer;
 

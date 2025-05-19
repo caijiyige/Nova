@@ -2,6 +2,7 @@
 #include "Novar/Core/Base.h"
 #include "Novar/Debug/Instrumentor.h"
 #include <glad.h>
+#include "OpenGLFrameBuffer.h"
 namespace NV
 {
     static const uint32_t s_MaxFrameBufferSize = 8192;
@@ -19,28 +20,18 @@ namespace NV
 
         static void CreatTextures(bool multisampled, uint32_t count, uint32_t* outIDs)
         {
-            
             glCreateTextures(TextureTarget(multisampled), count, outIDs);
-            for (uint32_t i = 0; i < count; i++)
-            {
-                glBindTexture(GL_TEXTURE_2D, outIDs[i]);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            }
         }
         static void BindTexture( bool multisampled, uint32_t id)
         {
             glBindTexture(TextureTarget(multisampled), id);
         }
-        static void AttachColorTexture(uint32_t id, int samples,GLenum internalFormat ,GLenum format, uint32_t attachment, uint32_t width, uint32_t height)
+        static void AttachColorTexture(uint32_t id, int samples,GLenum internalFormat ,GLenum format, uint32_t width, uint32_t height, int attachment)
         {
             bool multisampled = samples > 1;
-            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, TextureTarget(multisampled), id, 0);
             if (multisampled)
             {
-                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_TRUE);
+                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
             }
             else
             {
@@ -50,9 +41,10 @@ namespace NV
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             }
-            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, TextureTarget(multisampled), id, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, TextureTarget(multisampled), id, 0);
         }
 
         static void AttachDepthTexture(uint32_t id, int samples, GLenum format,uint32_t attachment, uint32_t width, uint32_t height)
@@ -97,9 +89,7 @@ namespace NV
                 case FrameBufferTextureFormat::RGBA8:
                     return GL_RGBA8;
                 case FrameBufferTextureFormat::RED_INTEGER:
-                    return GL_R32I;
-                case FrameBufferTextureFormat::DEPTH24STENCIL8:
-                    return GL_DEPTH24_STENCIL8;
+                    return GL_RED_INTEGER;
                 default:
                     NV_CORE_ASSERT(false, "Unknown FrameBufferTextureFormat!");
                     return 0;
@@ -125,6 +115,10 @@ namespace NV
                 m_ColorAttachmentsSpecification.emplace_back(attachment);
             }
         }
+        for (size_t i = 0; i < m_ColorAttachmentsSpecification.size(); i++) {
+        auto& spec = m_ColorAttachmentsSpecification[i];
+        NV_CORE_INFO("Color Attachment {0}: Format={1}", i, (int)spec.TextureFormat);
+}
         Invalidate();
 
     }
@@ -140,8 +134,6 @@ namespace NV
     {
         glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
         glViewport(0, 0, m_Specification.Width, m_Specification.Height);
-
-        
     }
     void OpenGLFrameBuffer::UnBind()
     {
@@ -167,12 +159,6 @@ namespace NV
         glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
 
         //Attachments
-        if(m_Specification.SwapChainTarget)
-        {
-            m_ColorAttachment = 0;
-            m_DepthAttachment = 0;
-            return;
-        }
         bool multisampled = m_Specification.Samples > 1;
         //Color Attachment
         if(m_ColorAttachmentsSpecification.size())
@@ -185,10 +171,10 @@ namespace NV
                 switch (m_ColorAttachmentsSpecification[i].TextureFormat)
                 {
                     case FrameBufferTextureFormat::RGBA8:
-                        Utils::AttachColorTexture(m_ColorAttachments[i],m_Specification.Samples,GL_RGBA8,GL_RGBA,GL_COLOR_ATTACHMENT0 + i, m_Specification.Width, m_Specification.Height);
+                        Utils::AttachColorTexture(m_ColorAttachments[i],m_Specification.Samples,GL_RGBA8,GL_RGBA, m_Specification.Width, m_Specification.Height,i);
                         break;
                     case FrameBufferTextureFormat::RED_INTEGER:
-                        Utils::AttachColorTexture(m_ColorAttachments[i],m_Specification.Samples,GL_R32I,GL_RED_INTEGER,GL_COLOR_ATTACHMENT0 + i, m_Specification.Width, m_Specification.Height);
+                        Utils::AttachColorTexture(m_ColorAttachments[i],m_Specification.Samples,GL_R32I,GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
                         break;
 
                     default:
@@ -216,16 +202,17 @@ namespace NV
             m_DepthAttachment = 0;
         }
         //Stencil Attachment
-
-
         if(m_ColorAttachments.size() > 1)
         {
             GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
             glDrawBuffers(m_ColorAttachments.size(), buffers);
 
         }
-       
-        NV_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is not complete!");
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            NV_CORE_ERROR("Framebuffer incomplete! Status: 0x{0:x}", status);
+        }
+        //NV_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is not complete!");
 
         glViewport(0, 0, m_Specification.Width, m_Specification.Height);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -236,10 +223,17 @@ namespace NV
         NV_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "Attachment index out of range!");
         glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
         int pixelValue = 0;
-        glReadnPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, sizeof(int), &pixelValue);
+        glReadnPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, sizeof(int), &pixelValue);
         return pixelValue;
     }
-    void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
+    void OpenGLFrameBuffer::ReadPixelColor()
+    {
+       std::vector<GLubyte> pixels(4);
+        glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+       //NV_CORE_INFO("Pixel color: R={0}, G={1}, B={2}, A={3}", pixels[0], pixels[1], pixels[2], pixels[3]);
+    }
+
+    void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height) 
     {
         if (width == 0 || height == 0 || width > s_MaxFrameBufferSize || height > s_MaxFrameBufferSize)
 		{
@@ -256,7 +250,7 @@ namespace NV
         NV_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "Attachment index out of range!");
         auto& attachment = m_ColorAttachmentsSpecification[attachmentIndex];
 
-        glClearTexImage(m_ColorAttachments[attachmentIndex], 0, Utils::TextureFormat(attachment.TextureFormat), GL_UNSIGNED_BYTE, &value);
+        glClearTexImage(m_ColorAttachments[attachmentIndex], 0, Utils::TextureFormat(attachment.TextureFormat), GL_INT, &value);
         
 
     }

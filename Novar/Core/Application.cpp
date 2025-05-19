@@ -3,7 +3,7 @@
 #include "Novar/Core/Timestep.h"
 #include "Novar/Core/Input.h"
 
-
+#include <filesystem>
 #include <glfw3.h>
 
 #include "Novar/Renderer/Renderer.h"
@@ -15,27 +15,30 @@
 
 
 
+
+
 namespace NV
 {
     Application *Application::s_Instance = nullptr;
 
-  
+    Application::Application(const ApplicationSpecification& specification)
+		: m_Specification(specification)
+	{
+		NV_CORE_ASSERT(!s_Instance, "Application already exists!");
+		s_Instance = this;
 
-    Application::Application(const std::string& name)
-    
-    {
-        // Initialization code here
-        NV_CORE_ASSERT(!s_Instance, "Application already exists!");
-        s_Instance = this;
-        m_Window = std::unique_ptr<Window>(Window::Create(name));
-        m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+		// Set working directory here
+		if (!m_Specification.WorkingDirectory.empty())
+			std::filesystem::current_path(m_Specification.WorkingDirectory);
 
-        Renderer::Init();
-        
+		m_Window = Window::Create(WindowProps(m_Specification.Name));
+		m_Window->SetEventCallback(NV_BIND_EVENT_FN(Application::OnEvent));
 
-        m_ImGuiLayer = new ImguiLayer();
-        PushLayer(m_ImGuiLayer);   
-    }
+		Renderer::Init();
+
+		m_ImGuiLayer = new ImguiLayer();
+		PushOverlay(m_ImGuiLayer);
+	}
 
     Application::~Application()
     {

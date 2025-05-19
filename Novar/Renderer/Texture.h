@@ -4,10 +4,28 @@
 
 namespace NV
 {
+    enum class ImageFormat
+	{
+		None = 0,
+		R8,
+		RGB8,
+		RGBA8,
+		RGBA32F
+	};
+
+	struct TextureSpecification
+	{
+		uint32_t Width = 1;
+		uint32_t Height = 1;
+		ImageFormat Format = ImageFormat::RGBA8;
+		bool GenerateMips = true;
+	};
     class Texture
     {
         public :
         virtual ~Texture() = default;
+
+		virtual const TextureSpecification& GetSpecification() const = 0;
 
         virtual unsigned int GetWidth() const = 0;
         virtual unsigned int GetHeight() const = 0;
@@ -32,6 +50,7 @@ namespace NV
     public:
 
         static std::shared_ptr<Texture2D> Create(const uint32_t width,const uint32_t height);
+        static std::shared_ptr<Texture2D> Create(const TextureSpecification& specification);
         static std::shared_ptr<Texture2D> Create(const std::string& path);
     };
     
