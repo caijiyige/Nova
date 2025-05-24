@@ -10,7 +10,7 @@ layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_Tiling;
 layout(location = 5) in int a_EntityID;
 
-layout(std430) uniform Camera
+layout(std140,binding = 0) uniform Camera
 {
 	mat4 u_ViewProjection;
 };
@@ -35,7 +35,6 @@ void main()
 	v_EntityID = a_EntityID;
 
 	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-	#error ""
 }
 
 #type fragment

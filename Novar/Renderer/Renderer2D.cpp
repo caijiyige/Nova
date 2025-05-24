@@ -84,7 +84,7 @@ namespace NV
 
         struct CameraData
 		{
-			alignas(16) glm::mat4 ViewProjection;
+			glm::mat4 ViewProjection;
 		};
 		CameraData CameraBuffer;
 		std::shared_ptr<UniformBuffer> CameraUniformBuffer;
@@ -166,7 +166,7 @@ namespace NV
         s_Data.WhiteTexture = Texture2D::Create(TextureSpecification());
         uint32_t whiteTextureData = 0xffffffff;
         s_Data.WhiteTexture->SetData(&whiteTextureData,sizeof(uint32_t));
-        NV_CORE_WARN("Whitetextrue RendererId:{0}",s_Data.WhiteTexture->GetRendererID());
+        //NV_CORE_WARN("Whitetextrue RendererId:{0}",s_Data.WhiteTexture->GetRendererID());
 
         int samplers[s_Data.MaxTextureSlots];
         for (int i = 0; i < s_Data.MaxTextureSlots; i++)
@@ -330,7 +330,7 @@ namespace NV
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			s_Data.QuadVertexBufferPtr++;
 		}
-        NV_CORE_WARN("posion {0}, {1}, {2}",s_Data.QuadVertexBufferPtr->Position.x,s_Data.QuadVertexBufferPtr->Position.y,s_Data.QuadVertexBufferPtr->Position.z);
+        //NV_CORE_WARN("posion {0}, {1}, {2}",s_Data.QuadVertexBufferPtr->Position.x,s_Data.QuadVertexBufferPtr->Position.y,s_Data.QuadVertexBufferPtr->Position.z);
 
 		s_Data.QuadIndexCount += 6;
 

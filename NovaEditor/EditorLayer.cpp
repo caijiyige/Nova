@@ -99,7 +99,7 @@ namespace NV
 
             m_FrameBuffer->ClearAttachment(1, -1);
             
-            m_FrameBuffer->ReadPixelColor();
+            //m_FrameBuffer->ReadPixelColor();
             //Scene State
 
             switch (m_SceneState)
@@ -135,7 +135,7 @@ namespace NV
                 if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)m_vec2RenderViewPortSize.x && mouseY < (int)m_vec2RenderViewPortSize.y)
                 {
                     int pixelData = m_FrameBuffer->ReadPixelInt(1, mouseX, mouseY);
-                    NV_INFO("mousex {0}  {1} pixelData {2}",mouseX, mouseY,pixelData);
+                   // NV_INFO("mousex {0}  {1} pixelData {2}",mouseX, mouseY,pixelData);
                     //m_HoveredEntity = pixelData == -1 ? Entity() : Entity(m_ActiveScene->GetRegistry(), (entt::entity)pixelData);
                 }
 
