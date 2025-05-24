@@ -76,6 +76,7 @@ namespace NV
 		SpriteRendererComponent(const glm::vec4& color)
 			: Color(color) {}
 	};
+	
 	struct CircleRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };

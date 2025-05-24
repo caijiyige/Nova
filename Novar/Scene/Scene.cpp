@@ -219,7 +219,7 @@ namespace NV
 			    auto components = m_spRegistry->view<Rigidbody2DComponent>();
                 for (auto component : components)
                 {
-                    auto spEntity = CreateRef<Entity>(m_spRegistry, component);
+                    auto spEntity = std::make_shared<Entity>(m_spRegistry, component);
                     auto& transform = spEntity->GetComponent<TransformComponent>();
                     auto& rigidBody2D = spEntity->GetComponent<Rigidbody2DComponent>();
 
@@ -242,7 +242,7 @@ namespace NV
 			    auto components = m_spRegistry->view<Rigidbody2DComponent>();
                 for (auto component : components)
                 {
-                    auto spEntity = CreateRef<Entity>(m_spRegistry, component);
+                    auto spEntity = std::make_shared<Entity>(m_spRegistry, component);
                     auto& transform = spEntity->GetComponent<TransformComponent>();
                     auto& rigidBody2D = spEntity->GetComponent<Rigidbody2DComponent>();
 
@@ -332,7 +332,7 @@ namespace NV
             {
                 auto& circleCollider2D = spEntity->GetComponent<CircleCollider2DComponent>();
 
-                m_spPhysicsSystem2D->CreateCircleShape(circleCollider2D, transform);
+                m_spPhysics2D->CreateCircleShape(circleCollider2D, transform);
             }*/
         }
     }
@@ -361,7 +361,16 @@ namespace NV
 				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 			}
 		}
-        
+        //Draw circle
+        {
+			auto view = m_spRegistry->view<TransformComponent, CircleRendererComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
+
+				Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+			}
+		}
 		Renderer2D::EndScene();
 	}
 }

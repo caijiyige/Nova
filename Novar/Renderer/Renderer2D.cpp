@@ -67,12 +67,12 @@ namespace NV
         SquadVertex* QuadVertexBufferPtr = nullptr;
 
         uint32_t CircleIndexCount = 0;
-        SquadVertex* CircleVertexBufferBase = nullptr;
-        SquadVertex* CircleVertexBufferPtr = nullptr;
+        CircleVertex* CircleVertexBufferBase = nullptr;
+        CircleVertex* CircleVertexBufferPtr = nullptr;
 
         uint32_t LineIndexCount = 0;
-        SquadVertex* LineVertexBufferBase = nullptr;
-        SquadVertex* LineVertexBufferPtr = nullptr;
+        LineVertex* LineVertexBufferBase = nullptr;
+        LineVertex* LineVertexBufferPtr = nullptr;
 
 
         float LineWidth = 2.0f;
@@ -84,7 +84,7 @@ namespace NV
 
         struct CameraData
 		{
-			glm::mat4 ViewProjection;
+			alignas(16) glm::mat4 ViewProjection;
 		};
 		CameraData CameraBuffer;
 		std::shared_ptr<UniformBuffer> CameraUniformBuffer;
@@ -133,7 +133,7 @@ namespace NV
 
         //Circle
         s_Data.CircleVertexArray = VertexArray::Create();
-        s_Data.CircleVertexBuffer = VertexBuffer::Create(s_Data.MaxVertexCount *sizeof(SquadVertex));
+        s_Data.CircleVertexBuffer = VertexBuffer::Create(s_Data.MaxVertexCount *sizeof(CircleVertex));
         s_Data.CircleVertexBuffer->SetLayout(
             {
             {ShaderDataType::Float3, "a_WorldPosition",false},
@@ -145,11 +145,12 @@ namespace NV
             }
         );
         s_Data.CircleVertexArray->AddVertexBuffer(s_Data.CircleVertexBuffer);
-        s_Data.CircleVertexBufferBase = new SquadVertex[s_Data.MaxVertexCount];
+        s_Data.CircleVertexArray->SetIndexBuffer(squdIB); // Use quad IB
+        s_Data.CircleVertexBufferBase = new CircleVertex[s_Data.MaxVertexCount];
 
         //Line
         s_Data.LineVertexArray = VertexArray::Create();
-        s_Data.LineVertexBuffer = VertexBuffer::Create(s_Data.MaxVertexCount *sizeof(SquadVertex));
+        s_Data.LineVertexBuffer = VertexBuffer::Create(s_Data.MaxVertexCount *sizeof(LineVertex));
         s_Data.LineVertexBuffer->SetLayout(
             {
             {NV::ShaderDataType::Float3, "a_Position",false},
@@ -158,7 +159,8 @@ namespace NV
             }
         );
         s_Data.LineVertexArray->AddVertexBuffer(s_Data.LineVertexBuffer);
-        s_Data.LineVertexBufferBase = new SquadVertex[s_Data.MaxVertexCount];
+        s_Data.CircleVertexArray->SetIndexBuffer(squdIB); // Use quad IB
+        s_Data.LineVertexBufferBase = new LineVertex[s_Data.MaxVertexCount];
 
         //white texture
         s_Data.WhiteTexture = Texture2D::Create(TextureSpecification());
@@ -171,21 +173,31 @@ namespace NV
             samplers[i] = i;
     
         s_Data.QuadShader   = Shader::Create("F:/LearnGameEngine/Nova/Novar/assert/shaders/quad.glsl");
-        s_Data.CircleShader = Shader::Create("F:/LearnGameEngine/Nova/Novar/assert/shaders/circle.glsl");
-        s_Data.LineShader = Shader::Create("F:/LearnGameEngine/Nova/Novar/assert/shaders/line.glsl");
-
-    
-
         s_Data.QuadShader->Bind();
-        s_Data.QuadShader->SetUniform1iv(std::string("u_Textures"), samplers, static_cast<uint32_t>(s_Data.MaxTextureSlots));
+        s_Data.QuadShader->SetUniformBlock("Camera", 0);
+        s_Data.QuadShader->SetUniform1iv("u_Textures", samplers, s_Data.MaxTextureSlots);
+        s_Data.QuadShader->Unbind();
 
+        s_Data.CircleShader = Shader::Create("F:/LearnGameEngine/Nova/Novar/assert/shaders/circle.glsl");
+        s_Data.CircleShader->Bind();
+        s_Data.CircleShader->SetUniformBlock("Camera", 0);
+        s_Data.CircleShader->Unbind();
+
+        s_Data.LineShader = Shader::Create("F:/LearnGameEngine/Nova/Novar/assert/shaders/line.glsl");
+        s_Data.LineShader->Bind();
+        s_Data.LineShader->SetUniformBlock("Camera", 0);
+        s_Data.LineShader->Unbind();
+
+        s_Data.TextureSlots[0] = std::static_pointer_cast<Texture2D>(s_Data.WhiteTexture);
 
         s_Data.QuadVertexPositions[0] = {-0.5f,-0.5f,0.0f,1.0f};
         s_Data.QuadVertexPositions[1] = { 0.5f,-0.5f,0.0f,1.0f};
         s_Data.QuadVertexPositions[2] = { 0.5f, 0.5f,0.0f,1.0f};
         s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f,0.0f,1.0f};
 
-        s_Data.TextureSlots[0] = std::static_pointer_cast<Texture2D>(s_Data.WhiteTexture);
+        
+
+        s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
         
     }
 
@@ -196,25 +208,23 @@ namespace NV
 
     void Renderer2D::BeginScene(const std::shared_ptr<Camera>& camera, const glm::mat4 &transform)
     {
-        s_Data.QuadShader->Bind();
-        glm::mat4 viewProjectionMatrix = camera->GetProjectionMatrix() * transform;
-        s_Data.QuadShader->SetUniformMat4f("u_ViewProjection",viewProjectionMatrix);
+        s_Data.CameraBuffer.ViewProjection = camera->GetProjectionMatrix() * glm::inverse(transform);
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
         StartBatch();
     }
 
     void Renderer2D::BeginScene(OrthographicCamera& camera)
     {
-            
-        s_Data.QuadShader->Bind();
-        s_Data.QuadShader->SetUniformMat4f("u_ViewProjection",camera.GetViewProjectionMatrix());
+        s_Data.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
         StartBatch();
     }
 
     void Renderer2D::BeginScene(const std::shared_ptr<EditorCamera> &camera)
     {
-        glm::mat4 viewProjectionMatrix = camera->GetViewProjection();
-        s_Data.QuadShader->Bind();
-        s_Data.QuadShader->SetUniformMat4f("u_ViewProjection",viewProjectionMatrix);
+        s_Data.CameraBuffer.ViewProjection = camera->GetProjectionMatrix();
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+
         StartBatch();
     }
 
@@ -252,7 +262,7 @@ namespace NV
 			for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
             {
                 s_Data.TextureSlots[i]->Bind(i);
-                NV_CORE_WARN("texture slot:{0} Renderid:{1}",i,s_Data.TextureSlots[0]->GetRendererID());
+                //NV_CORE_WARN("texture slot:{0} Renderid:{1}",i,s_Data.TextureSlots[0]->GetRendererID());
             }
 			s_Data.QuadShader->Bind();
             
@@ -274,7 +284,7 @@ namespace NV
 			s_Data.LineVertexBuffer->SetData(s_Data.LineVertexBufferBase, dataSize);
 			s_Data.LineShader->Bind();
             RendererCommand::SetLineWidth(s_Data.LineWidth);
-			RendererCommand::DrawLine(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
+			RendererCommand::DrawLine(s_Data.LineVertexArray, s_Data.LineIndexCount);
 			s_Data.Stats.DrawCalls++;
         }
 
@@ -320,8 +330,33 @@ namespace NV
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			s_Data.QuadVertexBufferPtr++;
 		}
+        NV_CORE_WARN("posion {0}, {1}, {2}",s_Data.QuadVertexBufferPtr->Position.x,s_Data.QuadVertexBufferPtr->Position.y,s_Data.QuadVertexBufferPtr->Position.z);
 
 		s_Data.QuadIndexCount += 6;
+
+		s_Data.Stats.QuadCount++;
+	}
+
+    void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/, int entityID /*= -1*/)
+	{
+		
+
+		// TODO: implement for circles
+		// if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		// 	NextBatch();
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
+			s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
+			s_Data.CircleVertexBufferPtr->Color = color;
+			s_Data.CircleVertexBufferPtr->Thickness = thickness;
+			s_Data.CircleVertexBufferPtr->Fade = fade;
+			s_Data.CircleVertexBufferPtr->EntityID = entityID;
+			s_Data.CircleVertexBufferPtr++;
+		}
+
+		s_Data.CircleIndexCount += 6;
 
 		s_Data.Stats.QuadCount++;
 	}
@@ -416,6 +451,7 @@ namespace NV
 			s_Data.QuadVertexBufferPtr->EntityID = entityID;
 			s_Data.QuadVertexBufferPtr++;
 		}
+        NV_CORE_WARN("posion {0}, {1}, {2}",s_Data.QuadVertexBufferPtr->Position.x,s_Data.QuadVertexBufferPtr->Position.y,s_Data.QuadVertexBufferPtr->Position.z);
 
 		s_Data.QuadIndexCount += 6;
 

@@ -22,6 +22,7 @@ namespace NV
         virtual void SetUniform4f(const std::string& name, const glm::vec4& vector) =0;
         virtual void SetUniformMat3f(const std::string& name, const glm::mat3& matrix) =0;
         virtual void SetUniformMat4f(const std::string& name, const glm::mat4& matrix) =0;
+        virtual void SetUniformBlock(const std::string& name, int binding) =0;
 
         static std::shared_ptr<Shader> Create(const std::string& path);
          

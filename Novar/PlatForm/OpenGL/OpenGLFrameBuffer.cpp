@@ -230,7 +230,7 @@ namespace NV
     {
        std::vector<GLubyte> pixels(4);
         glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-       //NV_CORE_INFO("Pixel color: R={0}, G={1}, B={2}, A={3}", pixels[0], pixels[1], pixels[2], pixels[3]);
+        NV_CORE_INFO("Pixel color: R={0}, G={1}, B={2}, A={3}", pixels[0], pixels[1], pixels[2], pixels[3]);
     }
 
     void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height) 

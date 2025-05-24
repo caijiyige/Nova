@@ -382,4 +382,8 @@ namespace NV
 		return false;
 	}
 
+    void SceneSerializer::SetSelectedScene(const std::shared_ptr<Scene> &spScene)
+    {
+		m_Scene = spScene;
+    }
 }

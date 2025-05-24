@@ -23,7 +23,8 @@ namespace NV
         void SetUniform4f(const std::string& name, const glm::vec4& vector) override;
         void SetUniformMat3f(const std::string& name, const glm::mat3& matrix) override;
         void SetUniformMat4f(const std::string& name, const glm::mat4& matrix) override;
-
+        void SetUniformBlock(const std::string& name, int binding) override;
+        
     private:
         unsigned int m_RendererID;// OpenGL shader program ID
         std::string m_Name;// Shader name

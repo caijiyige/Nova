@@ -79,7 +79,7 @@ namespace NV
 
             SceneState m_SceneState = SceneState::Edit;
 
-            bool m_bShowDemoWindow = true;
+            bool m_bShowDemoWindow = false;
             bool m_bShowPhysicsCollider = false;
 
             //Resize data

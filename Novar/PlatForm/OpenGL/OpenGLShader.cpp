@@ -80,6 +80,13 @@ namespace NV
     {
         glUniformMatrix4fv(glGetUniformLocation(m_RendererID, name.c_str()), 1, GL_FALSE, &matrix[0][0]);
     }
+
+
+    void OpenGLShader::SetUniformBlock(const std::string& name, int binding)
+    {
+        unsigned int blockIndex = glGetUniformBlockIndex(m_RendererID, name.c_str());
+        glUniformBlockBinding(m_RendererID, blockIndex, binding);
+    }
     std::string OpenGLShader::ReadFile(const std::string& path)
     {
         std::string result;

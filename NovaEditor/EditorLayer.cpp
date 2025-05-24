@@ -395,9 +395,9 @@ namespace NV
     }
     void EditorLayer::NewScene()
     {
-        m_ActiveScene = std::make_shared<Scene>();
-        m_ActiveScene->OnViewportResize(m_vec2RenderViewPortSize.x, m_vec2RenderViewPortSize.y);
-        m_SceneHierarchyPanel->SetContext(m_ActiveScene);
+        m_EditorScene = std::make_shared<Scene>();
+        m_EditorScene->OnViewportResize(m_vec2RenderViewPortSize.x, m_vec2RenderViewPortSize.y);
+        m_SceneHierarchyPanel->SetContext(m_EditorScene);
 
         m_EditorScenePath = std::filesystem::path();
     }
@@ -425,7 +425,7 @@ namespace NV
         }
 
         NewScene();
-        m_SceneHierarchyPanel->SetContext(m_EditorScene);
+        m_SceneSerializer->SetSelectedScene(m_EditorScene);
         m_SceneSerializer->Deserialize(path.string());
         m_EditorScenePath = path;
     }
